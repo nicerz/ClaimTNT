@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
@@ -8,6 +8,7 @@
   :root{
     --maroon:#7a1f2b;--maroon-d:#5e1721;--bg:#f4f5f7;--card:#ffffff;--line:#e3e6ea;
     --ink:#1c2430;--muted:#697384;--green:#1f7a4d;--amber:#9a6700;--red:#9a2230;
+    --blue:#1a4f8a;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
@@ -16,11 +17,15 @@
     padding:16px 16px 14px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.12);}
   header h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.2px}
   header p{margin:3px 0 0;font-size:12px;opacity:.85}
+  .tabs{display:flex;background:var(--maroon-d);padding:0 16px;}
+  .tab{padding:10px 16px;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;}
+  .tab.active{color:#fff;border-bottom-color:#fff;}
   .wrap{max-width:640px;margin:0 auto;padding:14px}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;
     padding:14px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
   .panel h2{margin:0 0 10px;font-size:14px;color:var(--maroon);font-weight:700}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
   label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px;font-weight:600}
   input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:10px;
     font-size:15px;font-family:inherit;background:#fff;color:var(--ink);}
@@ -31,8 +36,11 @@
     letter-spacing:.4px;margin:14px 0 8px;border-top:1px dashed var(--line);padding-top:10px}
   .seg:first-of-type{border-top:none;padding-top:0;margin-top:0}
   .btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--maroon);
-    color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+    color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;}
   .btn:active{background:var(--maroon-d)}
+  .btn.green{background:var(--green)}
+  .btn.blue{background:var(--blue)}
+  .btn.sm{padding:9px 14px;font-size:13px;width:auto;margin-bottom:0;}
   .count{font-size:12px;color:var(--muted);margin:2px 2px 10px}
   .entry{background:var(--card);border:1px solid var(--line);border-radius:14px;
     padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.03);position:relative;}
@@ -62,6 +70,33 @@
   .total .grand{display:flex;justify-content:space-between;align-items:baseline;
     margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.3)}
   .total .grand b{font-size:22px;font-weight:800}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+    background:#1c2430;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;
+    font-weight:600;z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1}
+  .loader{text-align:center;padding:20px;color:var(--muted);font-size:14px}
+  .rekod-item{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;margin-bottom:10px;}
+  .rekod-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .rekod-tarikh{font-size:13px;font-weight:700;color:var(--maroon)}
+  .rekod-rm{font-size:15px;font-weight:800;color:var(--green)}
+  .rekod-detail{font-size:12px;color:var(--muted);line-height:1.6}
+  .bulan-header{font-size:12px;font-weight:700;color:var(--maroon);text-transform:uppercase;
+    letter-spacing:.5px;margin:14px 0 8px;padding:6px 10px;background:#fdf0f1;border-radius:8px;}
+  .filter-bar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+  .filter-bar select{width:auto;flex:1;min-width:120px;}
+  .badge{display:inline-block;background:#fdf0f1;color:var(--maroon);font-size:11px;
+    font-weight:700;padding:3px 8px;border-radius:6px;margin-left:6px;}
+  .print-area{display:none;}
+  @media print{
+    body>*{display:none!important}
+    .print-area{display:block!important;font-size:12px;}
+    .print-area table{width:100%;border-collapse:collapse;}
+    .print-area td,.print-area th{border:1px solid #999;padding:5px 7px;}
+    .print-area th{background:#eee;font-weight:700;}
+  }
+  .page{display:none}
+  .page.active{display:block}
 </style>
 </head>
 <body>
@@ -70,21 +105,38 @@
   <h1>Kenyataan Tuntutan — WP1.4</h1>
   <p>Bertugas Rasmi Dalam Negeri · berkuat kuasa 1 Jan 2026</p>
 </header>
+<div class="tabs">
+  <div class="tab active" onclick="tukarTab('tambah',this)">＋ Tambah</div>
+  <div class="tab" onclick="tukarTab('rekod',this)">📋 Rekod</div>
+  <div class="tab" onclick="tukarTab('cetak',this)">🖨️ Cetak</div>
+</div>
 
+<!-- ══════════════ TAB: TAMBAH ══════════════ -->
+<div class="page active" id="pg-tambah">
 <div class="wrap">
 
   <div class="panel">
     <h2>Profil Pegawai</h2>
     <div class="field">
-      <label>Gred (penentu kadar Elaun Makan)</label>
-      <select id="gred" onchange="render()">
-        <option value="utama_a">Utama/Khas A dan ke atas</option>
-        <option value="utama_bc">Utama/Khas B dan C</option>
-        <option value="g14_15">Gred 14 dan 15</option>
-        <option value="g11_13">Gred 11 hingga 13</option>
-        <option value="g9_10">Gred 9 dan 10</option>
-        <option value="g1_8" selected>Gred 1 hingga 8</option>
-      </select>
+      <label>Nama Pegawai</label>
+      <input type="text" id="namaPegawai" placeholder="Nama penuh pegawai">
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>Gred (penentu kadar Elaun Makan)</label>
+        <select id="gred" onchange="render()">
+          <option value="utama_a">Utama/Khas A dan ke atas</option>
+          <option value="utama_bc">Utama/Khas B dan C</option>
+          <option value="g14_15">Gred 14 dan 15</option>
+          <option value="g11_13">Gred 11 hingga 13</option>
+          <option value="g9_10">Gred 9 dan 10</option>
+          <option value="g1_8" selected>Gred 1 hingga 8</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Jabatan / Pejabat</label>
+        <input type="text" id="jabatan" placeholder="Cth: JPN Melaka">
+      </div>
     </div>
     <div class="note" id="kadarInfo"></div>
   </div>
@@ -133,7 +185,12 @@
       <div class="field"><label>Jarak (km)</label><input type="number" id="jarak" inputmode="decimal" placeholder="Cth: 244"></div>
     </div>
 
-    <button class="btn" onclick="tambah()">+ Tambah ke Kenyataan</button>
+    <div class="field">
+      <label>Belanja Pelbagai (Tol, Parking, dll) — RM</label>
+      <input type="number" id="belanjaPelbagai" inputmode="decimal" placeholder="Cth: 25.60" step="0.01">
+    </div>
+
+    <button class="btn" onclick="tambah()">＋ Tambah ke Kenyataan</button>
     <div class="note">Layak tuntut dikira automatik dari <b>masa bertolak pergi</b> hingga <b>masa tiba rumah</b>: setiap 24 jam = 1 Elaun Makan; baki lebih 8 jam = 1 Elaun Harian.</div>
   </div>
 
@@ -141,9 +198,82 @@
   <div id="senarai"></div>
   <div id="ringkasan"></div>
 
+  <div id="btnSimpan" style="display:none">
+    <button class="btn green" onclick="simpanKeSheets()">💾 Simpan ke Google Sheets</button>
+    <div class="note" style="text-align:center">Data akan disimpan dalam Google Sheets mengikut tarikh, bulan dan tahun.</div>
+  </div>
+
+</div>
 </div>
 
+<!-- ══════════════ TAB: REKOD ══════════════ -->
+<div class="page" id="pg-rekod">
+<div class="wrap">
+  <div class="panel">
+    <h2>Cari Rekod Tuntutan</h2>
+    <div class="filter-bar">
+      <select id="fBulan">
+        <option value="">-- Semua Bulan --</option>
+        <option value="1">Januari</option><option value="2">Februari</option>
+        <option value="3">Mac</option><option value="4">April</option>
+        <option value="5">Mei</option><option value="6">Jun</option>
+        <option value="7">Julai</option><option value="8">Ogos</option>
+        <option value="9">September</option><option value="10">Oktober</option>
+        <option value="11">November</option><option value="12">Disember</option>
+      </select>
+      <select id="fTahun">
+        <option value="">-- Semua Tahun --</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+      <button class="btn sm" style="background:var(--maroon)" onclick="muatRekod()">🔍 Cari</button>
+    </div>
+  </div>
+  <div id="senaraRekod"><div class="empty">Pilih bulan/tahun dan tekan Cari.</div></div>
+</div>
+</div>
+
+<!-- ══════════════ TAB: CETAK ══════════════ -->
+<div class="page" id="pg-cetak">
+<div class="wrap">
+  <div class="panel">
+    <h2>Jana Borang Tuntutan Bulanan</h2>
+    <div class="grid2">
+      <div class="field">
+        <label>Bulan</label>
+        <select id="cBulan">
+          <option value="1">Januari</option><option value="2">Februari</option>
+          <option value="3">Mac</option><option value="4">April</option>
+          <option value="5">Mei</option><option value="6">Jun</option>
+          <option value="7">Julai</option><option value="8">Ogos</option>
+          <option value="9">September</option><option value="10">Oktober</option>
+          <option value="11">November</option><option value="12">Disember</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tahun</label>
+        <select id="cTahun">
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn blue" onclick="janaCetak()">🖨️ Jana & Cetak Borang</button>
+  </div>
+  <div id="previewCetak"></div>
+</div>
+</div>
+
+<!-- PRINT AREA -->
+<div class="print-area" id="printArea"></div>
+
+<div class="toast" id="toast"></div>
+
 <script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGOQE1Zs8b90GjehojXfyYGYoC7stMZvu8xUkWgaRlmObbrg7RHLBMz4B6kJ51HIV3/exec";
+
   const KADAR_MAKAN = {
     utama_a:  {label:"Utama/Khas A dan ke atas", sem:115, sswl:165},
     utama_bc: {label:"Utama/Khas B dan C",       sem:100, sswl:130},
@@ -152,18 +282,32 @@
     g9_10:    {label:"Gred 9 dan 10",            sem:45,  sswl:65},
     g1_8:     {label:"Gred 1 hingga 8",          sem:40,  sswl:55},
   };
+
+  const NAMA_BULAN = ["","Januari","Februari","Mac","April","Mei","Jun",
+    "Julai","Ogos","September","Oktober","November","Disember"];
+
   const LOKASI = {sem:"Semenanjung Malaysia", sswl:"Sabah/Sarawak/WP Labuan"};
-
   const entries = [];
+  const rmFmt = n => "RM " + Number(n).toLocaleString("ms-MY",{minimumFractionDigits:2,maximumFractionDigits:2});
 
-  const rmFmt = n => "RM " + n.toLocaleString("ms-MY",{minimumFractionDigits:2,maximumFractionDigits:2});
-
+  // ── Util ──
   function parseDT(d,t){ if(!d||!t) return null; const dt=new Date(d+"T"+t); return isNaN(dt)?null:dt; }
   function fmtTarikh(dt){ if(!dt) return "—"; const p=n=>String(n).padStart(2,"0");
     return `${p(dt.getDate())}.${p(dt.getMonth()+1)}.${dt.getFullYear()}`; }
   function fmtMasa(dt){ if(!dt) return "—"; let h=dt.getHours(),m=dt.getMinutes();
-    const ap=h>=12?"PM":"AM"; h=h%12; if(h===0)h=12; return `${h}.${String(m).padStart(2,"0")} ${ap}`; }
+    const ap=h>=12?"PTG":"PG"; h=h%12; if(h===0)h=12; return `${h}.${String(m).padStart(2,"0")} ${ap}`; }
+  function showToast(msg,dur=3000){
+    const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),dur);
+  }
+  function tukarTab(id,el){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.getElementById("pg-"+id).classList.add("active");
+    el.classList.add("active");
+  }
 
+  // ── Kira Kelayakan ──
   function kiraLayak(bertolak,tibaRumah){
     if(!bertolak||!tibaRumah) return {teks:"Lengkapkan tarikh & masa",kelas:"warn",jam:null,makan:0,harian:0};
     const ms=tibaRumah-bertolak;
@@ -178,78 +322,93 @@
     return {teks,kelas,jam,makan,harian};
   }
 
-  function infoKm(jenis,jarak){
-    const km=jarak?`${jarak} km`:"— km";
-    if(jenis==="kereta") return {label:"Kereta Sendiri",txt:`${km} — <span class="ok">Layak claim (kadar Kereta Sendiri)</span>`};
-    if(jenis==="motor")  return {label:"Motosikal Sendiri",txt:`${km} — <span class="ok">Layak claim (kadar Motosikal Sendiri)</span>`};
-    return {label:"Kereta Jabatan",txt:`<span class="no">Tidak layak claim kilometer (guna Kereta Jabatan)</span>`};
+  function kiraKm(jenis,jarak){
+    const km=parseFloat(jarak)||0;
+    if(jenis==="jabatan") return {layak:false,rm:0,label:"Kereta Jabatan"};
+    let rm=0;
+    if(jenis==="kereta"){
+      const k1=Math.min(km,500)*1.00;
+      const k2=Math.max(0,km-500)*0.90;
+      rm=k1+k2;
+      return {layak:true,rm,label:"Kereta Sendiri"};
+    }
+    if(jenis==="motor"){
+      const k1=Math.min(km,500)*0.65;
+      const k2=Math.max(0,km-500)*0.55;
+      rm=k1+k2;
+      return {layak:true,rm,label:"Motosikal Sendiri"};
+    }
+    return {layak:false,rm:0,label:""};
   }
 
+  // ── Tambah Entry ──
   function tambah(){
-    const bertolak=parseDT(tBertolak.value,mBertolak.value);
-    const tibaLokasi=parseDT(tTibaLokasi.value,mTibaLokasi.value);
-    const balik=parseDT(tBalik.value,mBalik.value);
-    const tibaRumah=parseDT(tTibaRumah.value,mTibaRumah.value);
+    const bertolak=parseDT(document.getElementById("tBertolak").value,document.getElementById("mBertolak").value);
+    const tibaLokasi=parseDT(document.getElementById("tTibaLokasi").value,document.getElementById("mTibaLokasi").value);
+    const balik=parseDT(document.getElementById("tBalik").value,document.getElementById("mBalik").value);
+    const tibaRumah=parseDT(document.getElementById("tTibaRumah").value,document.getElementById("mTibaRumah").value);
     const dari=document.getElementById("dari").value.trim();
     const ke=document.getElementById("ke").value.trim();
     const tujuan=document.getElementById("tujuan").value.trim();
     const jenis=document.getElementById("kenderaan").value;
     const jarak=document.getElementById("jarak").value.trim();
     const lokasi=document.getElementById("lokasi").value;
+    const belanjaPelbagai=parseFloat(document.getElementById("belanjaPelbagai").value)||0;
+
     if(!bertolak||!tibaRumah){alert("Sila isi Tarikh/Masa bertolak pergi dan tiba rumah.");return;}
     if(!dari||!ke){alert("Sila isi ruangan Dari dan Ke.");return;}
-    entries.push({bertolak,tibaLokasi,balik,tibaRumah,dari,ke,tujuan,jenis,jarak,lokasi});
+
+    entries.push({bertolak,tibaLokasi,balik,tibaRumah,dari,ke,tujuan,jenis,jarak,lokasi,belanjaPelbagai});
     render();
-    ["dari","ke","tujuan","jarak"].forEach(id=>document.getElementById(id).value="");
+    ["dari","ke","tujuan","jarak","belanjaPelbagai"].forEach(id=>document.getElementById(id).value="");
     window.scrollTo({top:document.getElementById("senarai").offsetTop-70,behavior:"smooth"});
   }
+
   function buang(i){entries.splice(i,1);render();}
 
+  // ── Render Tab Tambah ──
   function render(){
     const gred=document.getElementById("gred").value;
     const k=KADAR_MAKAN[gred];
     document.getElementById("kadarInfo").innerHTML=
-      `Kadar Elaun Makan: <b>Semenanjung ${rmFmt(k.sem)}</b> · <b>Sabah/Sarawak/Labuan ${rmFmt(k.sswl)}</b>. `+
-      `Elaun Harian = separuh kadar.`;
+      `Kadar Elaun Makan: <b>Semenanjung ${rmFmt(k.sem)}</b> · <b>Sabah/Sarawak/Labuan ${rmFmt(k.sswl)}</b>. Elaun Harian = separuh kadar.`;
 
     const box=document.getElementById("senarai");
     const cnt=document.getElementById("count");
     const ring=document.getElementById("ringkasan");
+    const btnSimpan=document.getElementById("btnSimpan");
 
     if(entries.length===0){
-      cnt.textContent="";
+      cnt.textContent=""; btnSimpan.style.display="none";
       box.innerHTML=`<div class="empty">Belum ada perjalanan. Isi borang di atas dan tekan <b>Tambah</b>.</div>`;
-      ring.innerHTML="";
-      return;
+      ring.innerHTML=""; return;
     }
+
+    btnSimpan.style.display="block";
     cnt.textContent=`${entries.length} perjalanan direkod`;
 
-    let totMakan=0, totHarian=0, totRM=0;
+    let totMakan=0,totHarian=0,totMakanRM=0,totHarianRM=0,totKmRM=0,totPelbagai=0;
 
     box.innerHTML=entries.map((e,i)=>{
       const layak=kiraLayak(e.bertolak,e.tibaRumah);
-      const km=infoKm(e.jenis,e.jarak);
-      const tempoh=layak.jam?` (tempoh: ${layak.jam.toFixed(1)} jam)`:"";
-
+      const km=kiraKm(e.jenis,e.jarak);
+      const tempoh=layak.jam?` (${layak.jam.toFixed(1)} jam)`:"";
       const kadarMakan=e.lokasi==="sem"?k.sem:k.sswl;
       const kadarHarian=kadarMakan/2;
       const rmMakan=layak.makan*kadarMakan;
       const rmHarian=layak.harian*kadarHarian;
-      const rmEntry=rmMakan+rmHarian;
+      const rmEntry=rmMakan+rmHarian+km.rm+e.belanjaPelbagai;
 
-      totMakan+=layak.makan; totHarian+=layak.harian; totRM+=rmEntry;
-
-      let rincian=[];
-      if(layak.makan>0) rincian.push(`${layak.makan} × ${rmFmt(kadarMakan)} = ${rmFmt(rmMakan)}`);
-      if(layak.harian>0) rincian.push(`${layak.harian} × ${rmFmt(kadarHarian)} (harian) = ${rmFmt(rmHarian)}`);
-      const rincianTxt = rincian.length? rincian.join(" &nbsp;+&nbsp; ") : "Tiada elaun makan layak";
+      totMakan+=layak.makan; totHarian+=layak.harian;
+      totMakanRM+=rmMakan; totHarianRM+=rmHarian;
+      totKmRM+=km.rm; totPelbagai+=e.belanjaPelbagai;
 
       return `
       <div class="entry">
         <div class="top">
           <div class="dt">
-            <div>Pergi: <b>${fmtTarikh(e.bertolak)}</b> ${fmtMasa(e.bertolak)} &rarr; tiba ${fmtMasa(e.tibaLokasi)}</div>
-            <div>Balik: <b>${fmtTarikh(e.tibaRumah)}</b> ${fmtMasa(e.balik)} &rarr; tiba rumah ${fmtMasa(e.tibaRumah)}</div>
+            <div>Pergi: <b>${fmtTarikh(e.bertolak)}</b> ${fmtMasa(e.bertolak)} → tiba ${fmtMasa(e.tibaLokasi)}</div>
+            <div>Balik: <b>${fmtTarikh(e.tibaRumah)}</b> ${fmtMasa(e.balik)} → tiba ${fmtMasa(e.tibaRumah)}</div>
             <div>Lokasi: <b>${LOKASI[e.lokasi]}</b></div>
           </div>
           <button class="del" onclick="buang(${i})">Padam</button>
@@ -259,24 +418,254 @@
           <div class="row"><span class="k">Ke</span><span class="v">${e.ke}</span></div>
           <div class="row"><span class="k">Tujuan</span><span class="v">${e.tujuan||"—"}</span></div>
           <div class="row"><span class="k">Kenderaan</span><span class="v">${km.label}</span></div>
+          ${e.jarak?`<div class="row"><span class="k">Jarak</span><span class="v">${e.jarak} km → ${rmFmt(km.rm)}</span></div>`:""}
+          ${e.belanjaPelbagai?`<div class="row"><span class="k">Blj. Pelbagai</span><span class="v">${rmFmt(e.belanjaPelbagai)}</span></div>`:""}
         </div>
-        <span class="tag ${layak.kelas}">Layak tuntut: ${layak.teks}${tempoh}</span>
-        <div class="km">${km.txt}</div>
-        <div class="rm">
-          <span class="big">${rmFmt(rmEntry)}</span>
-          <div class="sub">${rincianTxt}</div>
+        <span class="tag ${layak.kelas}">Layak: ${layak.teks}${tempoh}</span>
+        <div class="rm"><span class="big">${rmFmt(rmEntry)}</span>
+          <div class="sub">Makan ${rmFmt(rmMakan)} + Harian ${rmFmt(rmHarian)} + Km ${rmFmt(km.rm)} + Pelbagai ${rmFmt(e.belanjaPelbagai)}</div>
         </div>
       </div>`;
     }).join("");
 
+    const totRM=totMakanRM+totHarianRM+totKmRM+totPelbagai;
     ring.innerHTML=`
       <div class="panel total">
-        <h2>Ringkasan A — Kemudahan Makan Minum</h2>
-        <div class="line"><span>Jumlah Elaun Makan</span><span>${totMakan} kali</span></div>
-        <div class="line"><span>Jumlah Elaun Harian</span><span>${totHarian} kali</span></div>
-        <div class="grand"><span>JUMLAH (A)</span><b>${rmFmt(totRM)}</b></div>
+        <h2>Ringkasan Tuntutan</h2>
+        <div class="line"><span>A — Elaun Makan (${totMakan} kali)</span><span>${rmFmt(totMakanRM)}</span></div>
+        <div class="line"><span>A — Elaun Harian (${totHarian} kali)</span><span>${rmFmt(totHarianRM)}</span></div>
+        <div class="line"><span>C — Elaun Perjalanan Kenderaan</span><span>${rmFmt(totKmRM)}</span></div>
+        <div class="line"><span>D — Belanja Pelbagai</span><span>${rmFmt(totPelbagai)}</span></div>
+        <div class="grand"><span>JUMLAH KESELURUHAN</span><b>${rmFmt(totRM)}</b></div>
       </div>`;
   }
+
+  // ── Simpan ke Google Sheets ──
+  async function simpanKeSheets(){
+    const gred=document.getElementById("gred").value;
+    const nama=document.getElementById("namaPegawai").value.trim();
+    const jabatan=document.getElementById("jabatan").value.trim();
+    const k=KADAR_MAKAN[gred];
+
+    if(!nama){alert("Sila isi Nama Pegawai terlebih dahulu.");return;}
+    if(entries.length===0){alert("Tiada rekod untuk disimpan.");return;}
+
+    showToast("⏳ Menyimpan data...",10000);
+    let jayaBilangan=0;
+
+    for(const e of entries){
+      const layak=kiraLayak(e.bertolak,e.tibaRumah);
+      const km=kiraKm(e.jenis,e.jarak);
+      const kadarMakan=e.lokasi==="sem"?k.sem:k.sswl;
+      const kadarHarian=kadarMakan/2;
+      const rmMakan=layak.makan*kadarMakan;
+      const rmHarian=layak.harian*kadarHarian;
+      const jumlahRM=rmMakan+rmHarian+km.rm+e.belanjaPelbagai;
+      const tarikhStr=e.bertolak.toISOString().split("T")[0];
+
+      const payload={
+        id: Date.now()+Math.random(),
+        nama, jabatan, gred,
+        tarikh: tarikhStr,
+        masaBertolak: fmtMasa(e.bertolak),
+        masaTibaLokasi: fmtMasa(e.tibaLokasi),
+        masaBertolakBalik: fmtMasa(e.balik),
+        masaTibaRumah: fmtMasa(e.tibaRumah),
+        dari: e.dari,
+        ke: e.ke,
+        tujuan: e.tujuan,
+        lokasi: LOKASI[e.lokasi],
+        kenderaan: km.label,
+        jarak: e.jarak||0,
+        eLaunMakan: layak.makan,
+        eLaunHarian: layak.harian,
+        rmMakan, rmHarian,
+        rmKm: km.rm,
+        belanjaPelbagai: e.belanjaPelbagai,
+        jumlahRM,
+      };
+
+      try{
+        await fetch(SCRIPT_URL,{
+          method:"POST",
+          body: JSON.stringify(payload),
+          mode:"no-cors"
+        });
+        jayaBilangan++;
+      }catch(err){
+        console.error(err);
+      }
+    }
+
+    showToast(`✅ ${jayaBilangan} rekod berjaya disimpan!`);
+    entries.length=0;
+    render();
+  }
+
+  // ── Muat Rekod dari Sheets ──
+  async function muatRekod(){
+    const bulan=document.getElementById("fBulan").value;
+    const tahun=document.getElementById("fTahun").value;
+    const box=document.getElementById("senaraRekod");
+    box.innerHTML=`<div class="loader">⏳ Memuatkan rekod...</div>`;
+
+    try{
+      let url=SCRIPT_URL;
+      const params=[];
+      if(bulan) params.push("bulan="+bulan);
+      if(tahun) params.push("tahun="+tahun);
+      if(params.length) url+="?"+params.join("&");
+
+      const res=await fetch(url);
+      const json=await res.json();
+
+      if(!json.data||json.data.length===0){
+        box.innerHTML=`<div class="empty">Tiada rekod ditemui untuk tempoh yang dipilih.</div>`;
+        return;
+      }
+
+      const data=json.data;
+      let totalRM=0;
+      let html="";
+      let bulanSemasa="";
+
+      data.forEach(r=>{
+        const bLabel=NAMA_BULAN[parseInt(r["Bulan"])]+" "+r["Tahun"];
+        if(bLabel!==bulanSemasa){
+          bulanSemasa=bLabel;
+          html+=`<div class="bulan-header">📅 ${bLabel}</div>`;
+        }
+        const rm=parseFloat(r["Jumlah RM"])||0;
+        totalRM+=rm;
+        html+=`
+          <div class="rekod-item">
+            <div class="rekod-top">
+              <span class="rekod-tarikh">📌 ${r["Tarikh"]||"—"}</span>
+              <span class="rekod-rm">${rmFmt(rm)}</span>
+            </div>
+            <div class="rekod-detail">
+              <b>${r["Nama"]||""}</b> · ${r["Gred"]||""} · ${r["Jabatan"]||""}<br>
+              Dari: ${r["Dari"]||"—"} → Ke: ${r["Ke"]||"—"}<br>
+              Tujuan: ${r["Tujuan"]||"—"}<br>
+              Kenderaan: ${r["Kenderaan"]||"—"} · ${r["Jarak (km)"]||0} km<br>
+              Elaun Makan: ${r["Elaun Makan (kali)"]||0} kali · Elaun Harian: ${r["Elaun Harian (kali)"]||0} kali
+            </div>
+          </div>`;
+      });
+
+      html+=`
+        <div class="panel total" style="margin-top:12px">
+          <div class="grand"><span>JUMLAH (${data.length} rekod)</span><b>${rmFmt(totalRM)}</b></div>
+        </div>`;
+      box.innerHTML=html;
+
+    }catch(err){
+      box.innerHTML=`<div class="empty">⚠️ Gagal memuatkan data. Semak sambungan internet.<br><small>${err.message}</small></div>`;
+    }
+  }
+
+  // ── Jana & Cetak ──
+  async function janaCetak(){
+    const bulan=document.getElementById("cBulan").value;
+    const tahun=document.getElementById("cTahun").value;
+    const preview=document.getElementById("previewCetak");
+    preview.innerHTML=`<div class="loader">⏳ Memuatkan data...</div>`;
+
+    try{
+      const url=SCRIPT_URL+"?bulan="+bulan+"&tahun="+tahun;
+      const res=await fetch(url);
+      const json=await res.json();
+
+      if(!json.data||json.data.length===0){
+        preview.innerHTML=`<div class="empty">Tiada rekod untuk ${NAMA_BULAN[bulan]} ${tahun}.</div>`;
+        return;
+      }
+
+      const data=json.data;
+      let totalMakanRM=0,totalHarianRM=0,totalKmRM=0,totalPelbagaiRM=0,totalRM=0;
+      data.forEach(r=>{
+        totalMakanRM+=parseFloat(r["RM Makan"])||0;
+        totalHarianRM+=parseFloat(r["RM Harian"])||0;
+        totalKmRM+=parseFloat(r["RM Km"])||0;
+        totalPelbagaiRM+=parseFloat(r["Belanja Pelbagai"])||0;
+        totalRM+=parseFloat(r["Jumlah RM"])||0;
+      });
+
+      const namaPegawai=data[0]["Nama"]||"";
+      const gredPegawai=data[0]["Gred"]||"";
+      const jabatanPegawai=data[0]["Jabatan"]||"";
+
+      const baris=data.map((r,i)=>`
+        <tr>
+          <td style="text-align:center">${i+1}</td>
+          <td>${r["Tarikh"]||""}</td>
+          <td>${r["Masa Bertolak"]||""}</td>
+          <td>${r["Masa Tiba Rumah"]||""}</td>
+          <td>${r["Dari"]||""}</td>
+          <td>${r["Ke"]||""}</td>
+          <td>${r["Tujuan"]||""}</td>
+          <td style="text-align:center">${r["Jarak (km)"]||0}</td>
+          <td style="text-align:right">${rmFmt(parseFloat(r["RM Makan"])||0)}</td>
+          <td style="text-align:right">${rmFmt(parseFloat(r["RM Harian"])||0)}</td>
+          <td style="text-align:right">${rmFmt(parseFloat(r["RM Km"])||0)}</td>
+          <td style="text-align:right">${rmFmt(parseFloat(r["Belanja Pelbagai"])||0)}</td>
+          <td style="text-align:right;font-weight:700">${rmFmt(parseFloat(r["Jumlah RM"])||0)}</td>
+        </tr>`).join("");
+
+      const html=`
+        <div class="panel">
+          <h2>📄 Borang Tuntutan — ${NAMA_BULAN[bulan]} ${tahun}</h2>
+          <div style="font-size:13px;margin-bottom:10px;line-height:1.8">
+            <b>Nama:</b> ${namaPegawai} &nbsp;|&nbsp; <b>Gred:</b> ${gredPegawai} &nbsp;|&nbsp; <b>Jabatan:</b> ${jabatanPegawai}
+          </div>
+          <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="background:#7a1f2b;color:#fff">
+                <th style="padding:7px 5px;text-align:center">Bil</th>
+                <th style="padding:7px 5px">Tarikh</th>
+                <th style="padding:7px 5px">Bertolak</th>
+                <th style="padding:7px 5px">Tiba</th>
+                <th style="padding:7px 5px">Dari</th>
+                <th style="padding:7px 5px">Ke</th>
+                <th style="padding:7px 5px">Tujuan</th>
+                <th style="padding:7px 5px;text-align:center">Km</th>
+                <th style="padding:7px 5px;text-align:right">El.Makan</th>
+                <th style="padding:7px 5px;text-align:right">El.Harian</th>
+                <th style="padding:7px 5px;text-align:right">El.Km</th>
+                <th style="padding:7px 5px;text-align:right">Pelbagai</th>
+                <th style="padding:7px 5px;text-align:right">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody>${baris}</tbody>
+            <tfoot>
+              <tr style="background:#f4f5f7;font-weight:700">
+                <td colspan="8" style="padding:7px 5px;text-align:right">JUMLAH</td>
+                <td style="padding:7px 5px;text-align:right">${rmFmt(totalMakanRM)}</td>
+                <td style="padding:7px 5px;text-align:right">${rmFmt(totalHarianRM)}</td>
+                <td style="padding:7px 5px;text-align:right">${rmFmt(totalKmRM)}</td>
+                <td style="padding:7px 5px;text-align:right">${rmFmt(totalPelbagaiRM)}</td>
+                <td style="padding:7px 5px;text-align:right;color:#7a1f2b;font-size:14px">${rmFmt(totalRM)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          </div>
+          <button class="btn" style="margin-top:14px" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+        </div>`;
+
+      preview.innerHTML=html;
+      document.getElementById("printArea").innerHTML=preview.innerHTML;
+
+    }catch(err){
+      preview.innerHTML=`<div class="empty">⚠️ Gagal memuatkan data. ${err.message}</div>`;
+    }
+  }
+
+  // Set bulan semasa pada dropdown cetak
+  const skrg=new Date();
+  document.getElementById("cBulan").value=skrg.getMonth()+1;
+  document.getElementById("fBulan").value=skrg.getMonth()+1;
+  document.getElementById("fTahun").value=skrg.getFullYear();
 
   render();
 </script>
