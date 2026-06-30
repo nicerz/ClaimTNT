@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
@@ -274,6 +274,81 @@
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGOQE1Zs8b90GjehojXfyYGYoC7stMZvu8xUkWgaRlmObbrg7RHLBMz4B6kJ51HIV3/exec";
 
+  // Google Form (bypass CORS) — data dihantar senyap ke Sheets melalui Form
+  const FORM_ID = "1FAIpQLSfvZkePTt7pQ9xz8-ZWfkw7i6tcnCOG0fVFFDJcoWPffeHHyw";
+  const FORM_ACTION_URL = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
+  const FORM_ENTRIES = {
+    nama:            "entry.1637945416",
+    jabatan:         "entry.1341222179",
+    gred:            "entry.1745572102",
+    tarikh:          "entry.407953020",
+    masaTibaRumah:   "entry.2053441564",
+    dari:            "entry.1887341832",
+    ke:              "entry.1384601216",
+    tujuan:          "entry.1440267373",
+    kenderaan:       "entry.1784793001",
+    jarak:           "entry.1641616928",
+    elaunMakan:      "entry.1812066679",
+    elaunHarian:     "entry.1612303758",
+    rmMakan:         "entry.1333031211",
+    rmHarian:        "entry.1265223571",
+    rmKm:            "entry.117118887",
+    belanjaPelbagai: "entry.2145683155",
+    jumlahRM:        "entry.640440882",
+  };
+
+  // Hantar satu rekod ke Google Form secara senyap (hidden iframe, bypass CORS)
+  function hantarKeGoogleForm(payload){
+    return new Promise((resolve)=>{
+      let iframe = document.getElementById("hiddenFormFrame");
+      if(!iframe){
+        iframe = document.createElement("iframe");
+        iframe.name = "hiddenFormFrame";
+        iframe.id = "hiddenFormFrame";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+      }
+
+      const form = document.createElement("form");
+      form.action = FORM_ACTION_URL;
+      form.method = "POST";
+      form.target = "hiddenFormFrame";
+
+      function addField(name,value){
+        const inp = document.createElement("input");
+        inp.type = "hidden";
+        inp.name = name;
+        inp.value = value;
+        form.appendChild(inp);
+      }
+
+      addField(FORM_ENTRIES.nama, payload.nama);
+      addField(FORM_ENTRIES.jabatan, payload.jabatan);
+      addField(FORM_ENTRIES.gred, payload.gred);
+      addField(FORM_ENTRIES.tarikh, payload.tarikh);
+      // Medan "Masa Bertolak" jenis Time perlukan _hour & _minute
+      addField("entry.1735555444_hour", payload._masaBertolakJam);
+      addField("entry.1735555444_minute", payload._masaBertolakMinit);
+      addField(FORM_ENTRIES.masaTibaRumah, payload.masaTibaRumah);
+      addField(FORM_ENTRIES.dari, payload.dari);
+      addField(FORM_ENTRIES.ke, payload.ke);
+      addField(FORM_ENTRIES.tujuan, payload.tujuan);
+      addField(FORM_ENTRIES.kenderaan, payload.kenderaan);
+      addField(FORM_ENTRIES.jarak, payload.jarak);
+      addField(FORM_ENTRIES.elaunMakan, payload.eLaunMakan);
+      addField(FORM_ENTRIES.elaunHarian, payload.eLaunHarian);
+      addField(FORM_ENTRIES.rmMakan, payload.rmMakan);
+      addField(FORM_ENTRIES.rmHarian, payload.rmHarian);
+      addField(FORM_ENTRIES.rmKm, payload.rmKm);
+      addField(FORM_ENTRIES.belanjaPelbagai, payload.belanjaPelbagai);
+      addField(FORM_ENTRIES.jumlahRM, payload.jumlahRM);
+
+      document.body.appendChild(form);
+      form.submit();
+      setTimeout(()=>{ form.remove(); resolve(true); }, 600);
+    });
+  }
+
   const KADAR_MAKAN = {
     utama_a:  {label:"Utama/Khas A dan ke atas", sem:115, sswl:165},
     utama_bc: {label:"Utama/Khas B dan C",       sem:100, sswl:130},
@@ -464,17 +539,14 @@
       const tarikhStr=e.bertolak.toISOString().split("T")[0];
 
       const payload={
-        id: Date.now()+Math.random(),
         nama, jabatan, gred,
         tarikh: tarikhStr,
-        masaBertolak: fmtMasa(e.bertolak),
-        masaTibaLokasi: fmtMasa(e.tibaLokasi),
-        masaBertolakBalik: fmtMasa(e.balik),
+        _masaBertolakJam: e.bertolak.getHours(),
+        _masaBertolakMinit: e.bertolak.getMinutes(),
         masaTibaRumah: fmtMasa(e.tibaRumah),
         dari: e.dari,
         ke: e.ke,
         tujuan: e.tujuan,
-        lokasi: LOKASI[e.lokasi],
         kenderaan: km.label,
         jarak: e.jarak||0,
         eLaunMakan: layak.makan,
@@ -486,11 +558,7 @@
       };
 
       try{
-        await fetch(SCRIPT_URL,{
-          method:"POST",
-          body: JSON.stringify(payload),
-          mode:"no-cors"
-        });
+        await hantarKeGoogleForm(payload);
         jayaBilangan++;
       }catch(err){
         console.error(err);
