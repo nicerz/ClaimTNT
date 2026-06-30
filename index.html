@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kenyataan Tuntutan WP1.4</title>
+<style>
+  :root{
+    --maroon:#7a1f2b;--maroon-d:#5e1721;--bg:#f4f5f7;--card:#ffffff;--line:#e3e6ea;
+    --ink:#1c2430;--muted:#697384;--green:#1f7a4d;--amber:#9a6700;--red:#9a2230;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45;padding-bottom:90px;}
+  header{background:linear-gradient(135deg,var(--maroon),var(--maroon-d));color:#fff;
+    padding:16px 16px 14px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  header h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.2px}
+  header p{margin:3px 0 0;font-size:12px;opacity:.85}
+  .wrap{max-width:640px;margin:0 auto;padding:14px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .panel h2{margin:0 0 10px;font-size:14px;color:var(--maroon);font-weight:700}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px;font-weight:600}
+  input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:10px;
+    font-size:15px;font-family:inherit;background:#fff;color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--maroon)}
+  textarea{resize:vertical;min-height:46px}
+  .field{margin-bottom:11px}
+  .seg{font-size:11px;font-weight:700;color:var(--maroon);text-transform:uppercase;
+    letter-spacing:.4px;margin:14px 0 8px;border-top:1px dashed var(--line);padding-top:10px}
+  .seg:first-of-type{border-top:none;padding-top:0;margin-top:0}
+  .btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--maroon);
+    color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+  .btn:active{background:var(--maroon-d)}
+  .count{font-size:12px;color:var(--muted);margin:2px 2px 10px}
+  .entry{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.03);position:relative;}
+  .entry .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+  .dt{font-size:12px;color:var(--muted);font-weight:600}
+  .dt b{color:var(--ink)}
+  .row{display:flex;gap:6px;font-size:14px;margin:5px 0}
+  .row .k{min-width:88px;color:var(--muted);font-weight:600}
+  .row .v{flex:1;font-weight:600}
+  .tag{display:inline-block;font-size:12px;font-weight:700;padding:5px 9px;border-radius:8px;margin-top:8px;}
+  .tag.ok{background:#e8f5ee;color:var(--green)}
+  .tag.warn{background:#fbf3e0;color:var(--amber)}
+  .tag.no{background:#fbe9eb;color:var(--red)}
+  .km{margin-top:6px;font-size:13px}
+  .km .ok{color:var(--green);font-weight:700}
+  .km .no{color:var(--red);font-weight:700}
+  .rm{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
+  .rm .big{font-size:16px;font-weight:800;color:var(--maroon)}
+  .rm .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .del{background:#fbe9eb;color:var(--red);border:none;border-radius:8px;
+    padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px}
+  .note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .total{background:linear-gradient(135deg,#1f7a4d,#176038);color:#fff;border:none}
+  .total h2{color:#fff}
+  .total .line{display:flex;justify-content:space-between;font-size:13px;margin:4px 0;opacity:.95}
+  .total .grand{display:flex;justify-content:space-between;align-items:baseline;
+    margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.3)}
+  .total .grand b{font-size:22px;font-weight:800}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kenyataan Tuntutan — WP1.4</h1>
+  <p>Bertugas Rasmi Dalam Negeri · berkuat kuasa 1 Jan 2026</p>
+</header>
+
+<div class="wrap">
+
+  <div class="panel">
+    <h2>Profil Pegawai</h2>
+    <div class="field">
+      <label>Gred (penentu kadar Elaun Makan)</label>
+      <select id="gred" onchange="render()">
+        <option value="utama_a">Utama/Khas A dan ke atas</option>
+        <option value="utama_bc">Utama/Khas B dan C</option>
+        <option value="g14_15">Gred 14 dan 15</option>
+        <option value="g11_13">Gred 11 hingga 13</option>
+        <option value="g9_10">Gred 9 dan 10</option>
+        <option value="g1_8" selected>Gred 1 hingga 8</option>
+      </select>
+    </div>
+    <div class="note" id="kadarInfo"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Tambah Perjalanan</h2>
+
+    <div class="field">
+      <label>Lokasi tugas rasmi</label>
+      <select id="lokasi">
+        <option value="sem">Semenanjung Malaysia</option>
+        <option value="sswl">Sabah / Sarawak / WP Labuan</option>
+      </select>
+    </div>
+
+    <div class="seg">Perjalanan Pergi</div>
+    <div class="grid2">
+      <div class="field"><label>Tarikh bertolak</label><input type="date" id="tBertolak"></div>
+      <div class="field"><label>Masa bertolak</label><input type="time" id="mBertolak"></div>
+      <div class="field"><label>Tarikh tiba</label><input type="date" id="tTibaLokasi"></div>
+      <div class="field"><label>Masa tiba</label><input type="time" id="mTibaLokasi"></div>
+    </div>
+
+    <div class="seg">Perjalanan Pulang</div>
+    <div class="grid2">
+      <div class="field"><label>Tarikh bertolak balik</label><input type="date" id="tBalik"></div>
+      <div class="field"><label>Masa bertolak balik</label><input type="time" id="mBalik"></div>
+      <div class="field"><label>Tarikh tiba rumah</label><input type="date" id="tTibaRumah"></div>
+      <div class="field"><label>Masa tiba rumah</label><input type="time" id="mTibaRumah"></div>
+    </div>
+
+    <div class="seg">Butiran Tuntutan</div>
+    <div class="field"><label>Dari</label><input type="text" id="dari" placeholder="Cth: Rumah di Cyberjaya"></div>
+    <div class="field"><label>Ke</label><input type="text" id="ke" placeholder="Cth: Menara Persekutuan Ayer Keroh, Melaka"></div>
+    <div class="field"><label>Tujuan</label><textarea id="tujuan" placeholder="Cth: Bertugas rasmi menghadiri Mesyuarat..."></textarea></div>
+
+    <div class="grid2">
+      <div class="field">
+        <label>Jenis kenderaan</label>
+        <select id="kenderaan">
+          <option value="kereta">Kereta Sendiri</option>
+          <option value="motor">Motosikal Sendiri</option>
+          <option value="jabatan">Kereta Jabatan</option>
+        </select>
+      </div>
+      <div class="field"><label>Jarak (km)</label><input type="number" id="jarak" inputmode="decimal" placeholder="Cth: 244"></div>
+    </div>
+
+    <button class="btn" onclick="tambah()">+ Tambah ke Kenyataan</button>
+    <div class="note">Layak tuntut dikira automatik dari <b>masa bertolak pergi</b> hingga <b>masa tiba rumah</b>: setiap 24 jam = 1 Elaun Makan; baki lebih 8 jam = 1 Elaun Harian.</div>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div id="senarai"></div>
+  <div id="ringkasan"></div>
+
+</div>
+
+<script>
+  const KADAR_MAKAN = {
+    utama_a:  {label:"Utama/Khas A dan ke atas", sem:115, sswl:165},
+    utama_bc: {label:"Utama/Khas B dan C",       sem:100, sswl:130},
+    g14_15:   {label:"Gred 14 dan 15",           sem:85,  sswl:115},
+    g11_13:   {label:"Gred 11 hingga 13",        sem:60,  sswl:80},
+    g9_10:    {label:"Gred 9 dan 10",            sem:45,  sswl:65},
+    g1_8:     {label:"Gred 1 hingga 8",          sem:40,  sswl:55},
+  };
+  const LOKASI = {sem:"Semenanjung Malaysia", sswl:"Sabah/Sarawak/WP Labuan"};
+
+  const entries = [];
+
+  const rmFmt = n => "RM " + n.toLocaleString("ms-MY",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  function parseDT(d,t){ if(!d||!t) return null; const dt=new Date(d+"T"+t); return isNaN(dt)?null:dt; }
+  function fmtTarikh(dt){ if(!dt) return "—"; const p=n=>String(n).padStart(2,"0");
+    return `${p(dt.getDate())}.${p(dt.getMonth()+1)}.${dt.getFullYear()}`; }
+  function fmtMasa(dt){ if(!dt) return "—"; let h=dt.getHours(),m=dt.getMinutes();
+    const ap=h>=12?"PM":"AM"; h=h%12; if(h===0)h=12; return `${h}.${String(m).padStart(2,"0")} ${ap}`; }
+
+  function kiraLayak(bertolak,tibaRumah){
+    if(!bertolak||!tibaRumah) return {teks:"Lengkapkan tarikh & masa",kelas:"warn",jam:null,makan:0,harian:0};
+    const ms=tibaRumah-bertolak;
+    if(ms<=0) return {teks:"Masa tiba rumah mesti selepas bertolak",kelas:"no",jam:null,makan:0,harian:0};
+    const jam=ms/36e5, blok=Math.floor(jam/24), baki=jam-blok*24;
+    const makan=blok, harian=baki>8?1:0;
+    let teks,kelas;
+    if(makan>0&&harian>0){teks=`${makan} Elaun Makan + ${harian} Elaun Harian`;kelas="ok";}
+    else if(makan>0){teks=`${makan} Elaun Makan`;kelas="ok";}
+    else if(harian>0){teks=`${harian} Elaun Harian`;kelas="ok";}
+    else{teks="Tidak layak (tempoh 8 jam atau kurang)";kelas="no";}
+    return {teks,kelas,jam,makan,harian};
+  }
+
+  function infoKm(jenis,jarak){
+    const km=jarak?`${jarak} km`:"— km";
+    if(jenis==="kereta") return {label:"Kereta Sendiri",txt:`${km} — <span class="ok">Layak claim (kadar Kereta Sendiri)</span>`};
+    if(jenis==="motor")  return {label:"Motosikal Sendiri",txt:`${km} — <span class="ok">Layak claim (kadar Motosikal Sendiri)</span>`};
+    return {label:"Kereta Jabatan",txt:`<span class="no">Tidak layak claim kilometer (guna Kereta Jabatan)</span>`};
+  }
+
+  function tambah(){
+    const bertolak=parseDT(tBertolak.value,mBertolak.value);
+    const tibaLokasi=parseDT(tTibaLokasi.value,mTibaLokasi.value);
+    const balik=parseDT(tBalik.value,mBalik.value);
+    const tibaRumah=parseDT(tTibaRumah.value,mTibaRumah.value);
+    const dari=document.getElementById("dari").value.trim();
+    const ke=document.getElementById("ke").value.trim();
+    const tujuan=document.getElementById("tujuan").value.trim();
+    const jenis=document.getElementById("kenderaan").value;
+    const jarak=document.getElementById("jarak").value.trim();
+    const lokasi=document.getElementById("lokasi").value;
+    if(!bertolak||!tibaRumah){alert("Sila isi Tarikh/Masa bertolak pergi dan tiba rumah.");return;}
+    if(!dari||!ke){alert("Sila isi ruangan Dari dan Ke.");return;}
+    entries.push({bertolak,tibaLokasi,balik,tibaRumah,dari,ke,tujuan,jenis,jarak,lokasi});
+    render();
+    ["dari","ke","tujuan","jarak"].forEach(id=>document.getElementById(id).value="");
+    window.scrollTo({top:document.getElementById("senarai").offsetTop-70,behavior:"smooth"});
+  }
+  function buang(i){entries.splice(i,1);render();}
+
+  function render(){
+    const gred=document.getElementById("gred").value;
+    const k=KADAR_MAKAN[gred];
+    document.getElementById("kadarInfo").innerHTML=
+      `Kadar Elaun Makan: <b>Semenanjung ${rmFmt(k.sem)}</b> · <b>Sabah/Sarawak/Labuan ${rmFmt(k.sswl)}</b>. `+
+      `Elaun Harian = separuh kadar.`;
+
+    const box=document.getElementById("senarai");
+    const cnt=document.getElementById("count");
+    const ring=document.getElementById("ringkasan");
+
+    if(entries.length===0){
+      cnt.textContent="";
+      box.innerHTML=`<div class="empty">Belum ada perjalanan. Isi borang di atas dan tekan <b>Tambah</b>.</div>`;
+      ring.innerHTML="";
+      return;
+    }
+    cnt.textContent=`${entries.length} perjalanan direkod`;
+
+    let totMakan=0, totHarian=0, totRM=0;
+
+    box.innerHTML=entries.map((e,i)=>{
+      const layak=kiraLayak(e.bertolak,e.tibaRumah);
+      const km=infoKm(e.jenis,e.jarak);
+      const tempoh=layak.jam?` (tempoh: ${layak.jam.toFixed(1)} jam)`:"";
+
+      const kadarMakan=e.lokasi==="sem"?k.sem:k.sswl;
+      const kadarHarian=kadarMakan/2;
+      const rmMakan=layak.makan*kadarMakan;
+      const rmHarian=layak.harian*kadarHarian;
+      const rmEntry=rmMakan+rmHarian;
+
+      totMakan+=layak.makan; totHarian+=layak.harian; totRM+=rmEntry;
+
+      let rincian=[];
+      if(layak.makan>0) rincian.push(`${layak.makan} × ${rmFmt(kadarMakan)} = ${rmFmt(rmMakan)}`);
+      if(layak.harian>0) rincian.push(`${layak.harian} × ${rmFmt(kadarHarian)} (harian) = ${rmFmt(rmHarian)}`);
+      const rincianTxt = rincian.length? rincian.join(" &nbsp;+&nbsp; ") : "Tiada elaun makan layak";
+
+      return `
+      <div class="entry">
+        <div class="top">
+          <div class="dt">
+            <div>Pergi: <b>${fmtTarikh(e.bertolak)}</b> ${fmtMasa(e.bertolak)} &rarr; tiba ${fmtMasa(e.tibaLokasi)}</div>
+            <div>Balik: <b>${fmtTarikh(e.tibaRumah)}</b> ${fmtMasa(e.balik)} &rarr; tiba rumah ${fmtMasa(e.tibaRumah)}</div>
+            <div>Lokasi: <b>${LOKASI[e.lokasi]}</b></div>
+          </div>
+          <button class="del" onclick="buang(${i})">Padam</button>
+        </div>
+        <div style="margin-top:8px">
+          <div class="row"><span class="k">Dari</span><span class="v">${e.dari}</span></div>
+          <div class="row"><span class="k">Ke</span><span class="v">${e.ke}</span></div>
+          <div class="row"><span class="k">Tujuan</span><span class="v">${e.tujuan||"—"}</span></div>
+          <div class="row"><span class="k">Kenderaan</span><span class="v">${km.label}</span></div>
+        </div>
+        <span class="tag ${layak.kelas}">Layak tuntut: ${layak.teks}${tempoh}</span>
+        <div class="km">${km.txt}</div>
+        <div class="rm">
+          <span class="big">${rmFmt(rmEntry)}</span>
+          <div class="sub">${rincianTxt}</div>
+        </div>
+      </div>`;
+    }).join("");
+
+    ring.innerHTML=`
+      <div class="panel total">
+        <h2>Ringkasan A — Kemudahan Makan Minum</h2>
+        <div class="line"><span>Jumlah Elaun Makan</span><span>${totMakan} kali</span></div>
+        <div class="line"><span>Jumlah Elaun Harian</span><span>${totHarian} kali</span></div>
+        <div class="grand"><span>JUMLAH (A)</span><b>${rmFmt(totRM)}</b></div>
+      </div>`;
+  }
+
+  render();
+</script>
+</body>
+</html>
