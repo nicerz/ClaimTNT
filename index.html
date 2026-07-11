@@ -41,6 +41,13 @@
   .btn.green{background:var(--green)}
   .btn.blue{background:var(--blue)}
   .btn.sm{padding:9px 14px;font-size:13px;width:auto;margin-bottom:0;}
+  .btn.ghost{background:#fff;color:var(--maroon);border:1.5px dashed var(--maroon);}
+  .btn.ghost:active{background:#f9eef0}
+  .legcard{background:#faf7f2;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;position:relative}
+  .legcard .legtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .legcard .legno{font-size:12px;font-weight:800;color:var(--maroon)}
+  .legcard .legdel{background:#fbe9eb;color:var(--red);border:none;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer}
+  .legcard .legdel:disabled{opacity:.3;cursor:not-allowed}
   .count{font-size:12px;color:var(--muted);margin:2px 2px 10px}
   .entry{background:var(--card);border:1px solid var(--line);border-radius:14px;
     padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.03);position:relative;}
@@ -152,46 +159,21 @@
       </select>
     </div>
 
-    <div class="seg">Perjalanan Pergi</div>
-    <div class="grid2">
-      <div class="field"><label>Tarikh bertolak</label><input type="date" id="tBertolak"></div>
-      <div class="field"><label>Masa bertolak</label><input type="time" id="mBertolak"></div>
-      <div class="field"><label>Tarikh tiba</label><input type="date" id="tTibaLokasi"></div>
-      <div class="field"><label>Masa tiba</label><input type="time" id="mTibaLokasi"></div>
-    </div>
+    <div class="seg">Titik Perjalanan (ikut turutan sebenar)</div>
+    <div class="note" style="margin-bottom:10px">Mula dengan <b>bertolak dari rumah</b>, tambah setiap perhentian, dan akhiri dengan <b>tiba semula di rumah</b>. Elaun dikira dari titik <b>pertama</b> hingga titik <b>terakhir</b>. Nyatakan tujuan bagi setiap destinasi.</div>
 
-    <div class="seg">Perjalanan Pulang</div>
-    <div class="grid2">
-      <div class="field"><label>Tarikh bertolak balik</label><input type="date" id="tBalik"></div>
-      <div class="field"><label>Masa bertolak balik</label><input type="time" id="mBalik"></div>
-      <div class="field"><label>Tarikh tiba rumah</label><input type="date" id="tTibaRumah"></div>
-      <div class="field"><label>Masa tiba rumah</label><input type="time" id="mTibaRumah"></div>
-    </div>
+    <div id="legList"></div>
 
-    <div class="seg">Butiran Tuntutan</div>
-    <div class="field"><label>Dari</label><input type="text" id="dari" placeholder="Cth: Rumah di Cyberjaya"></div>
-    <div class="field"><label>Ke</label><input type="text" id="ke" placeholder="Cth: Menara Persekutuan Ayer Keroh, Melaka"></div>
-    <div class="field"><label>Tujuan</label><textarea id="tujuan" placeholder="Cth: Bertugas rasmi menghadiri Mesyuarat..."></textarea></div>
+    <button class="btn ghost" type="button" onclick="tambahLeg()" style="margin-top:4px">＋ Tambah Perhentian / Segmen</button>
 
-    <div class="grid2">
-      <div class="field">
-        <label>Jenis kenderaan</label>
-        <select id="kenderaan">
-          <option value="kereta">Kereta Sendiri</option>
-          <option value="motor">Motosikal Sendiri</option>
-          <option value="jabatan">Kereta Jabatan</option>
-        </select>
-      </div>
-      <div class="field"><label>Jarak (km)</label><input type="number" id="jarak" inputmode="decimal" placeholder="Cth: 244"></div>
-    </div>
-
+    <div class="seg" style="margin-top:16px">Belanja Pelbagai Keseluruhan</div>
     <div class="field">
       <label>Belanja Pelbagai (Tol, Parking, dll) — RM</label>
       <input type="number" id="belanjaPelbagai" inputmode="decimal" placeholder="Cth: 25.60" step="0.01">
     </div>
 
-    <button class="btn" onclick="tambah()">＋ Tambah ke Kenyataan</button>
-    <div class="note">Layak tuntut dikira automatik dari <b>masa bertolak pergi</b> hingga <b>masa tiba rumah</b>: setiap 24 jam = 1 Elaun Makan; baki lebih 8 jam = 1 Elaun Harian.</div>
+    <button class="btn" onclick="tambah()" style="margin-top:12px">＋ Tambah ke Kenyataan</button>
+    <div class="note">Layak tuntut dikira automatik dari <b>masa titik pertama</b> hingga <b>masa titik terakhir</b>: setiap 24 jam = 1 Elaun Makan; baki lebih 8 jam = 1 Elaun Harian. Jarak setiap segmen dijumlahkan untuk kadar berperingkat.</div>
   </div>
 
   <div class="count" id="count"></div>
@@ -383,382 +365,61 @@
   const entries = [];
   const rmFmt = n => "RM " + Number(n).toLocaleString("ms-MY",{minimumFractionDigits:2,maximumFractionDigits:2});
 
-  // ── Util ──
-  function parseDT(d,t){ if(!d||!t) return null; const dt=new Date(d+"T"+t); return isNaN(dt)?null:dt; }
-  function fmtTarikh(dt){ if(!dt) return "—"; const p=n=>String(n).padStart(2,"0");
-    return `${p(dt.getDate())}.${p(dt.getMonth()+1)}.${dt.getFullYear()}`; }
-  function fmtMasa(dt){ if(!dt) return "—"; let h=dt.getHours(),m=dt.getMinutes();
-    const ap=h>=12?"PTG":"PG"; h=h%12; if(h===0)h=12; return `${h}.${String(m).padStart(2,"0")} ${ap}`; }
-  function showToast(msg,dur=3000){
-    const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
-    setTimeout(()=>t.classList.remove("show"),dur);
-  }
-  function tukarTab(id,el){
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-    document.getElementById("pg-"+id).classList.add("active");
-    el.classList.add("active");
-  }
+  // ── State titik perjalanan (multi-leg) ──
+  // Setiap titik: {nama, tarikh, masa, jenis, jarak}
+  // Titik pertama = titik mula (jenis/jarak diabaikan). Titik ke-2+ = perjalanan MENUJU titik itu.
+  let points = [
+    {nama:"", tarikh:"", masa:"", jenis:"kereta", jarak:"", tujuan:""},
+    {nama:"", tarikh:"", masa:"", jenis:"kereta", jarak:"", tujuan:""}
+  ];
 
-  // ── Kira Kelayakan ──
-  function kiraLayak(bertolak,tibaRumah){
-    if(!bertolak||!tibaRumah) return {teks:"Lengkapkan tarikh & masa",kelas:"warn",jam:null,makan:0,harian:0};
-    const ms=tibaRumah-bertolak;
-    if(ms<=0) return {teks:"Masa tiba rumah mesti selepas bertolak",kelas:"no",jam:null,makan:0,harian:0};
-    const jam=ms/36e5, blok=Math.floor(jam/24), baki=jam-blok*24;
-    const makan=blok, harian=baki>8?1:0;
-    let teks,kelas;
-    if(makan>0&&harian>0){teks=`${makan} Elaun Makan + ${harian} Elaun Harian`;kelas="ok";}
-    else if(makan>0){teks=`${makan} Elaun Makan`;kelas="ok";}
-    else if(harian>0){teks=`${harian} Elaun Harian`;kelas="ok";}
-    else{teks="Tidak layak (tempoh 8 jam atau kurang)";kelas="no";}
-    return {teks,kelas,jam,makan,harian};
+  function tambahLeg(){
+    points.push({nama:"", tarikh:"", masa:"", jenis:"kereta", jarak:"", tujuan:""});
+    renderLegs();
+  }
+  function buangLeg(i){
+    if(points.length<=2) return;
+    points.splice(i,1);
+    renderLegs();
+  }
+  function updateLeg(i,field,val){
+    points[i][field]=val;
   }
 
-  function kiraKm(jenis,jarak){
-    const km=parseFloat(jarak)||0;
-    if(jenis==="jabatan") return {layak:false,rm:0,label:"Kereta Jabatan"};
-    let rm=0;
-    if(jenis==="kereta"){
-      const k1=Math.min(km,500)*1.00;
-      const k2=Math.max(0,km-500)*0.90;
-      rm=k1+k2;
-      return {layak:true,rm,label:"Kereta Sendiri"};
-    }
-    if(jenis==="motor"){
-      const k1=Math.min(km,500)*0.65;
-      const k2=Math.max(0,km-500)*0.55;
-      rm=k1+k2;
-      return {layak:true,rm,label:"Motosikal Sendiri"};
-    }
-    return {layak:false,rm:0,label:""};
-  }
-
-  // ── Tambah Entry ──
-  function tambah(){
-    const bertolak=parseDT(document.getElementById("tBertolak").value,document.getElementById("mBertolak").value);
-    const tibaLokasi=parseDT(document.getElementById("tTibaLokasi").value,document.getElementById("mTibaLokasi").value);
-    const balik=parseDT(document.getElementById("tBalik").value,document.getElementById("mBalik").value);
-    const tibaRumah=parseDT(document.getElementById("tTibaRumah").value,document.getElementById("mTibaRumah").value);
-    const dari=document.getElementById("dari").value.trim();
-    const ke=document.getElementById("ke").value.trim();
-    const tujuan=document.getElementById("tujuan").value.trim();
-    const jenis=document.getElementById("kenderaan").value;
-    const jarak=document.getElementById("jarak").value.trim();
-    const lokasi=document.getElementById("lokasi").value;
-    const belanjaPelbagai=parseFloat(document.getElementById("belanjaPelbagai").value)||0;
-
-    if(!bertolak||!tibaRumah){alert("Sila isi Tarikh/Masa bertolak pergi dan tiba rumah.");return;}
-    if(!dari||!ke){alert("Sila isi ruangan Dari dan Ke.");return;}
-
-    entries.push({bertolak,tibaLokasi,balik,tibaRumah,dari,ke,tujuan,jenis,jarak,lokasi,belanjaPelbagai});
-    render();
-    ["dari","ke","tujuan","jarak","belanjaPelbagai"].forEach(id=>document.getElementById(id).value="");
-    window.scrollTo({top:document.getElementById("senarai").offsetTop-70,behavior:"smooth"});
-  }
-
-  function buang(i){entries.splice(i,1);render();}
-
-  // ── Render Tab Tambah ──
-  function render(){
-    const gred=document.getElementById("gred").value;
-    const k=KADAR_MAKAN[gred];
-    document.getElementById("kadarInfo").innerHTML=
-      `Kadar Elaun Makan: <b>Semenanjung ${rmFmt(k.sem)}</b> · <b>Sabah/Sarawak/Labuan ${rmFmt(k.sswl)}</b>. Elaun Harian = separuh kadar.`;
-
-    const box=document.getElementById("senarai");
-    const cnt=document.getElementById("count");
-    const ring=document.getElementById("ringkasan");
-    const btnSimpan=document.getElementById("btnSimpan");
-
-    if(entries.length===0){
-      cnt.textContent=""; btnSimpan.style.display="none";
-      box.innerHTML=`<div class="empty">Belum ada perjalanan. Isi borang di atas dan tekan <b>Tambah</b>.</div>`;
-      ring.innerHTML=""; return;
-    }
-
-    btnSimpan.style.display="block";
-    cnt.textContent=`${entries.length} perjalanan direkod`;
-
-    let totMakan=0,totHarian=0,totMakanRM=0,totHarianRM=0,totKmRM=0,totPelbagai=0;
-
-    box.innerHTML=entries.map((e,i)=>{
-      const layak=kiraLayak(e.bertolak,e.tibaRumah);
-      const km=kiraKm(e.jenis,e.jarak);
-      const tempoh=layak.jam?` (${layak.jam.toFixed(1)} jam)`:"";
-      const kadarMakan=e.lokasi==="sem"?k.sem:k.sswl;
-      const kadarHarian=kadarMakan/2;
-      const rmMakan=layak.makan*kadarMakan;
-      const rmHarian=layak.harian*kadarHarian;
-      const rmEntry=rmMakan+rmHarian+km.rm+e.belanjaPelbagai;
-
-      totMakan+=layak.makan; totHarian+=layak.harian;
-      totMakanRM+=rmMakan; totHarianRM+=rmHarian;
-      totKmRM+=km.rm; totPelbagai+=e.belanjaPelbagai;
-
-      return `
-      <div class="entry">
-        <div class="top">
-          <div class="dt">
-            <div>Pergi: <b>${fmtTarikh(e.bertolak)}</b> ${fmtMasa(e.bertolak)} → tiba ${fmtMasa(e.tibaLokasi)}</div>
-            <div>Balik: <b>${fmtTarikh(e.tibaRumah)}</b> ${fmtMasa(e.balik)} → tiba ${fmtMasa(e.tibaRumah)}</div>
-            <div>Lokasi: <b>${LOKASI[e.lokasi]}</b></div>
+  function renderLegs(){
+    const box=document.getElementById("legList");
+    box.innerHTML=points.map((p,i)=>{
+      const isFirst=i===0;
+      const isLast=i===points.length-1;
+      const labelTitik = isFirst ? "Titik Mula (Bertolak dari rumah)"
+                        : isLast ? `Titik ${i+1} (Tiba semula di rumah)`
+                        : `Titik ${i+1} (Perhentian)`;
+      const placeholderNama = isFirst ? "Cth: Rumah di Cyberjaya"
+                        : isLast ? "Cth: Rumah di Cyberjaya"
+                        : "Cth: Menara Persekutuan Ayer Keroh, Melaka";
+      // Bahagian kenderaan+jarak: hanya untuk titik ke-2 dan seterusnya (perjalanan menuju titik ini)
+      const bahagianKenderaan = isFirst ? "" : `
+        <div class="grid2">
+          <div class="field">
+            <label>Kenderaan (menuju titik ini)</label>
+            <select onchange="updateLeg(${i},'jenis',this.value)">
+              <option value="kereta"${p.jenis==="kereta"?" selected":""}>Kereta Sendiri</option>
+              <option value="motor"${p.jenis==="motor"?" selected":""}>Motosikal Sendiri</option>
+              <option value="jabatan"${p.jenis==="jabatan"?" selected":""}>Kereta Jabatan</option>
+            </select>
           </div>
-          <button class="del" onclick="buang(${i})">Padam</button>
-        </div>
-        <div style="margin-top:8px">
-          <div class="row"><span class="k">Dari</span><span class="v">${e.dari}</span></div>
-          <div class="row"><span class="k">Ke</span><span class="v">${e.ke}</span></div>
-          <div class="row"><span class="k">Tujuan</span><span class="v">${e.tujuan||"—"}</span></div>
-          <div class="row"><span class="k">Kenderaan</span><span class="v">${km.label}</span></div>
-          ${e.jarak?`<div class="row"><span class="k">Jarak</span><span class="v">${e.jarak} km → ${rmFmt(km.rm)}</span></div>`:""}
-          ${e.belanjaPelbagai?`<div class="row"><span class="k">Blj. Pelbagai</span><span class="v">${rmFmt(e.belanjaPelbagai)}</span></div>`:""}
-        </div>
-        <span class="tag ${layak.kelas}">Layak: ${layak.teks}${tempoh}</span>
-        <div class="rm"><span class="big">${rmFmt(rmEntry)}</span>
-          <div class="sub">Makan ${rmFmt(rmMakan)} + Harian ${rmFmt(rmHarian)} + Km ${rmFmt(km.rm)} + Pelbagai ${rmFmt(e.belanjaPelbagai)}</div>
-        </div>
-      </div>`;
-    }).join("");
-
-    const totRM=totMakanRM+totHarianRM+totKmRM+totPelbagai;
-    ring.innerHTML=`
-      <div class="panel total">
-        <h2>Ringkasan Tuntutan</h2>
-        <div class="line"><span>A — Elaun Makan (${totMakan} kali)</span><span>${rmFmt(totMakanRM)}</span></div>
-        <div class="line"><span>A — Elaun Harian (${totHarian} kali)</span><span>${rmFmt(totHarianRM)}</span></div>
-        <div class="line"><span>C — Elaun Perjalanan Kenderaan</span><span>${rmFmt(totKmRM)}</span></div>
-        <div class="line"><span>D — Belanja Pelbagai</span><span>${rmFmt(totPelbagai)}</span></div>
-        <div class="grand"><span>JUMLAH KESELURUHAN</span><b>${rmFmt(totRM)}</b></div>
-      </div>`;
-  }
-
-  // ── Simpan ke Google Sheets ──
-  async function simpanKeSheets(){
-    const gred=document.getElementById("gred").value;
-    const nama=document.getElementById("namaPegawai").value.trim();
-    const jabatan=document.getElementById("jabatan").value.trim();
-    const k=KADAR_MAKAN[gred];
-
-    if(!nama){alert("Sila isi Nama Pegawai terlebih dahulu.");return;}
-    if(entries.length===0){alert("Tiada rekod untuk disimpan.");return;}
-
-    showToast("⏳ Menyimpan data...",10000);
-    let jayaBilangan=0;
-    const rekodUntukLocal=[];
-
-    for(const e of entries){
-      const layak=kiraLayak(e.bertolak,e.tibaRumah);
-      const km=kiraKm(e.jenis,e.jarak);
-      const kadarMakan=e.lokasi==="sem"?k.sem:k.sswl;
-      const kadarHarian=kadarMakan/2;
-      const rmMakan=layak.makan*kadarMakan;
-      const rmHarian=layak.harian*kadarHarian;
-      const jumlahRM=rmMakan+rmHarian+km.rm+e.belanjaPelbagai;
-      const tarikhStr=e.bertolak.toISOString().split("T")[0];
-
-      const payload={
-        nama, jabatan, gred,
-        tarikh: tarikhStr,
-        _masaBertolakJam: e.bertolak.getHours(),
-        _masaBertolakMinit: e.bertolak.getMinutes(),
-        masaTibaRumah: fmtMasa(e.tibaRumah),
-        dari: e.dari,
-        ke: e.ke,
-        tujuan: e.tujuan,
-        kenderaan: km.label,
-        jarak: e.jarak||0,
-        eLaunMakan: layak.makan,
-        eLaunHarian: layak.harian,
-        rmMakan, rmHarian,
-        rmKm: km.rm,
-        belanjaPelbagai: e.belanjaPelbagai,
-        jumlahRM,
-      };
-
-      // Simpan terus ke localStorage (peranti ini) — tidak bergantung pada Internet
-      rekodUntukLocal.push({
-        nama, jabatan, gred,
-        tarikh: tarikhStr,
-        bulan: e.bertolak.getMonth()+1,
-        tahun: e.bertolak.getFullYear(),
-        masaBertolak: fmtMasa(e.bertolak),
-        masaTibaRumah: fmtMasa(e.tibaRumah),
-        dari: e.dari, ke: e.ke, tujuan: e.tujuan,
-        kenderaan: km.label, jarak: e.jarak||0,
-        eLaunMakan: layak.makan, eLaunHarian: layak.harian,
-        rmMakan, rmHarian, rmKm: km.rm,
-        belanjaPelbagai: e.belanjaPelbagai, jumlahRM,
-      });
-
-      // Hantar ke Google Sheets sebagai sandaran (cloud)
-      try{
-        await hantarKeGoogleForm(payload);
-        jayaBilangan++;
-      }catch(err){
-        console.error(err);
-      }
-    }
-
-    // Simpan semua rekod ke localStorage tanpa mengira jaya/gagal hantar ke cloud
-    simpanRekodLocal(rekodUntukLocal);
-
-    showToast(`✅ ${entries.length} rekod disimpan dalam peranti ini (${jayaBilangan} juga dihantar ke Sheets)`);
-    entries.length=0;
-    render();
-  }
-
-  // ── Muat Rekod dari localStorage (peranti ini) ──
-  function muatRekod(){
-    const bulan=document.getElementById("fBulan").value;
-    const tahun=document.getElementById("fTahun").value;
-    const box=document.getElementById("senaraRekod");
-
-    let data=bacaRekodLocal();
-
-    if(bulan) data=data.filter(r=>String(r.bulan)===String(bulan));
-    if(tahun) data=data.filter(r=>String(r.tahun)===String(tahun));
-
-    // Susun ikut tarikh terbaru dahulu
-    data=data.map((r,idx)=>({...r,_origIdx:idx})).sort((a,b)=>new Date(b.tarikh)-new Date(a.tarikh));
-
-    if(data.length===0){
-      box.innerHTML=`<div class="empty">Tiada rekod ditemui untuk tempoh yang dipilih.</div>`;
-      return;
-    }
-
-    let totalRM=0;
-    let html="";
-    let bulanSemasa="";
-
-    data.forEach(r=>{
-      const bLabel=NAMA_BULAN[r.bulan]+" "+r.tahun;
-      if(bLabel!==bulanSemasa){
-        bulanSemasa=bLabel;
-        html+=`<div class="bulan-header">📅 ${bLabel}</div>`;
-      }
-      const rm=parseFloat(r.jumlahRM)||0;
-      totalRM+=rm;
-      html+=`
-        <div class="rekod-item">
-          <div class="rekod-top">
-            <span class="rekod-tarikh">📌 ${r.tarikh||"—"}</span>
-            <span class="rekod-rm">${rmFmt(rm)}</span>
+          <div class="field"><label>Jarak segmen (km)</label>
+            <input type="number" inputmode="decimal" placeholder="Cth: 126" value="${p.jarak}" oninput="updateLeg(${i},'jarak',this.value)">
           </div>
-          <div class="rekod-detail">
-            <b>${r.nama||""}</b> · ${r.gred||""} · ${r.jabatan||""}<br>
-            Dari: ${r.dari||"—"} → Ke: ${r.ke||"—"}<br>
-            Tujuan: ${r.tujuan||"—"}<br>
-            Kenderaan: ${r.kenderaan||"—"} · ${r.jarak||0} km<br>
-            Elaun Makan: ${r.eLaunMakan||0} kali · Elaun Harian: ${r.eLaunHarian||0} kali
-          </div>
-          <button class="del" onclick="padamRekodLocal(${r._origIdx})">Padam</button>
+        </div>
+        <div class="field"><label>Tujuan di destinasi ini</label>
+          <textarea placeholder="Cth: Bertugas rasmi menghadiri Mesyuarat Jawatankuasa..." oninput="updateLeg(${i},'tujuan',this.value)">${p.tujuan}</textarea>
         </div>`;
-    });
-
-    html+=`
-      <div class="panel total" style="margin-top:12px">
-        <div class="grand"><span>JUMLAH (${data.length} rekod)</span><b>${rmFmt(totalRM)}</b></div>
-      </div>`;
-    box.innerHTML=html;
-  }
-
-  // ── Jana & Cetak (dari localStorage) ──
-  function janaCetak(){
-    const bulan=document.getElementById("cBulan").value;
-    const tahun=document.getElementById("cTahun").value;
-    const preview=document.getElementById("previewCetak");
-
-    let data=bacaRekodLocal().filter(r=>String(r.bulan)===String(bulan)&&String(r.tahun)===String(tahun));
-    data.sort((a,b)=>new Date(a.tarikh)-new Date(b.tarikh));
-
-    if(data.length===0){
-      preview.innerHTML=`<div class="empty">Tiada rekod untuk ${NAMA_BULAN[bulan]} ${tahun}.</div>`;
-      return;
-    }
-
-    let totalMakanRM=0,totalHarianRM=0,totalKmRM=0,totalPelbagaiRM=0,totalRM=0;
-    data.forEach(r=>{
-      totalMakanRM+=parseFloat(r.rmMakan)||0;
-      totalHarianRM+=parseFloat(r.rmHarian)||0;
-      totalKmRM+=parseFloat(r.rmKm)||0;
-      totalPelbagaiRM+=parseFloat(r.belanjaPelbagai)||0;
-      totalRM+=parseFloat(r.jumlahRM)||0;
-    });
-
-    const namaPegawai=data[0].nama||"";
-    const gredPegawai=data[0].gred||"";
-    const jabatanPegawai=data[0].jabatan||"";
-
-    const baris=data.map((r,i)=>`
-      <tr>
-        <td style="text-align:center">${i+1}</td>
-        <td>${r.tarikh||""}</td>
-        <td>${r.masaBertolak||""}</td>
-        <td>${r.masaTibaRumah||""}</td>
-        <td>${r.dari||""}</td>
-        <td>${r.ke||""}</td>
-        <td>${r.tujuan||""}</td>
-        <td style="text-align:center">${r.jarak||0}</td>
-        <td style="text-align:right">${rmFmt(parseFloat(r.rmMakan)||0)}</td>
-        <td style="text-align:right">${rmFmt(parseFloat(r.rmHarian)||0)}</td>
-        <td style="text-align:right">${rmFmt(parseFloat(r.rmKm)||0)}</td>
-        <td style="text-align:right">${rmFmt(parseFloat(r.belanjaPelbagai)||0)}</td>
-        <td style="text-align:right;font-weight:700">${rmFmt(parseFloat(r.jumlahRM)||0)}</td>
-      </tr>`).join("");
-
-    const html=`
-      <div class="panel">
-        <h2>📄 Borang Tuntutan — ${NAMA_BULAN[bulan]} ${tahun}</h2>
-        <div style="font-size:13px;margin-bottom:10px;line-height:1.8">
-          <b>Nama:</b> ${namaPegawai} &nbsp;|&nbsp; <b>Gred:</b> ${gredPegawai} &nbsp;|&nbsp; <b>Jabatan:</b> ${jabatanPegawai}
+      return `
+      <div class="legcard">
+        <div class="legtop">
+          <span class="legno">📍 ${labelTitik}</span>
+          <button type="button" class="legdel" onclick="buangLeg(${i})" ${points.length<=2?"disabled":""}>Buang</button>
         </div>
-        <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:12px">
-          <thead>
-            <tr style="background:#7a1f2b;color:#fff">
-              <th style="padding:7px 5px;text-align:center">Bil</th>
-              <th style="padding:7px 5px">Tarikh</th>
-              <th style="padding:7px 5px">Bertolak</th>
-              <th style="padding:7px 5px">Tiba</th>
-              <th style="padding:7px 5px">Dari</th>
-              <th style="padding:7px 5px">Ke</th>
-              <th style="padding:7px 5px">Tujuan</th>
-              <th style="padding:7px 5px;text-align:center">Km</th>
-              <th style="padding:7px 5px;text-align:right">El.Makan</th>
-              <th style="padding:7px 5px;text-align:right">El.Harian</th>
-              <th style="padding:7px 5px;text-align:right">El.Km</th>
-              <th style="padding:7px 5px;text-align:right">Pelbagai</th>
-              <th style="padding:7px 5px;text-align:right">Jumlah</th>
-            </tr>
-          </thead>
-          <tbody>${baris}</tbody>
-          <tfoot>
-            <tr style="background:#f4f5f7;font-weight:700">
-              <td colspan="8" style="padding:7px 5px;text-align:right">JUMLAH</td>
-              <td style="padding:7px 5px;text-align:right">${rmFmt(totalMakanRM)}</td>
-              <td style="padding:7px 5px;text-align:right">${rmFmt(totalHarianRM)}</td>
-              <td style="padding:7px 5px;text-align:right">${rmFmt(totalKmRM)}</td>
-              <td style="padding:7px 5px;text-align:right">${rmFmt(totalPelbagaiRM)}</td>
-              <td style="padding:7px 5px;text-align:right;color:#7a1f2b;font-size:14px">${rmFmt(totalRM)}</td>
-            </tr>
-          </tfoot>
-        </table>
-        </div>
-        <button class="btn" style="margin-top:14px" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
-      </div>`;
-
-    preview.innerHTML=html;
-    document.getElementById("printArea").innerHTML=preview.innerHTML;
-  }
-
-  // Set bulan semasa pada dropdown cetak
-  const skrg=new Date();
-  document.getElementById("cBulan").value=skrg.getMonth()+1;
-  document.getElementById("fBulan").value=skrg.getMonth()+1;
-  document.getElementById("fTahun").value=skrg.getFullYear();
-
-  render();
-</script>
-</body>
-</html>
+        <div class="field"><label>Lokasi</label>
+          <input type="text" placeholder="${placeholderNama}" value="${p.nama.repl
