@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kenyataan Tuntutan WP1.4</title>
+<style>
+  :root{
+    --maroon:#7a1f2b;--maroon-d:#5e1721;--bg:#f4f5f7;--card:#ffffff;--line:#e3e6ea;
+    --ink:#1c2430;--muted:#697384;--green:#1f7a4d;--amber:#9a6700;--red:#9a2230;
+    --blue:#1a4f8a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45;padding-bottom:90px;}
+  header{background:linear-gradient(135deg,var(--maroon),var(--maroon-d));color:#fff;
+    padding:16px 16px 14px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  header h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.2px}
+  header p{margin:3px 0 0;font-size:12px;opacity:.85}
+  .tabs{display:flex;background:var(--maroon-d);padding:0 16px;}
+  .tab{padding:10px 16px;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;}
+  .tab.active{color:#fff;border-bottom-color:#fff;}
+  .wrap{max-width:640px;margin:0 auto;padding:14px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .panel h2{margin:0 0 10px;font-size:14px;color:var(--maroon);font-weight:700}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px;font-weight:600}
+  input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:10px;
+    font-size:15px;font-family:inherit;background:#fff;color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--maroon)}
+  textarea{resize:vertical;min-height:46px}
+  .field{margin-bottom:11px}
+  .seg{font-size:11px;font-weight:700;color:var(--maroon);text-transform:uppercase;
+    letter-spacing:.4px;margin:14px 0 8px;border-top:1px dashed var(--line);padding-top:10px}
+  .seg:first-of-type{border-top:none;padding-top:0;margin-top:0}
+  .btn{width:100%;padding:13px;border:none;border-radius:12px;background:var(--maroon);
+    color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;}
+  .btn:active{background:var(--maroon-d)}
+  .btn.green{background:var(--green)}
+  .btn.blue{background:var(--blue)}
+  .btn.sm{padding:9px 14px;font-size:13px;width:auto;margin-bottom:0;}
+  .btn.ghost{background:#fff;color:var(--maroon);border:1.5px dashed var(--maroon);}
+  .btn.ghost:active{background:#f9eef0}
+  .legcard{background:#faf7f2;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;position:relative}
+  .legcard .legtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .legcard .legno{font-size:12px;font-weight:800;color:var(--maroon)}
+  .legcard .legdel{background:#fbe9eb;color:var(--red);border:none;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer}
+  .legcard .legdel:disabled{opacity:.3;cursor:not-allowed}
+  .count{font-size:12px;color:var(--muted);margin:2px 2px 10px}
+  .entry{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.03);position:relative;}
+  .entry .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+  .dt{font-size:12px;color:var(--muted);font-weight:600}
+  .dt b{color:var(--ink)}
+  .row{display:flex;gap:6px;font-size:14px;margin:5px 0}
+  .row .k{min-width:88px;color:var(--muted);font-weight:600}
+  .row .v{flex:1;font-weight:600}
+  .tag{display:inline-block;font-size:12px;font-weight:700;padding:5px 9px;border-radius:8px;margin-top:8px;}
+  .tag.ok{background:#e8f5ee;color:var(--green)}
+  .tag.warn{background:#fbf3e0;color:var(--amber)}
+  .tag.no{background:#fbe9eb;color:var(--red)}
+  .km{margin-top:6px;font-size:13px}
+  .km .ok{color:var(--green);font-weight:700}
+  .km .no{color:var(--red);font-weight:700}
+  .rm{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
+  .rm .big{font-size:16px;font-weight:800;color:var(--maroon)}
+  .rm .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .del{background:#fbe9eb;color:var(--red);border:none;border-radius:8px;
+    padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px}
+  .note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .total{background:linear-gradient(135deg,#1f7a4d,#176038);color:#fff;border:none}
+  .total h2{color:#fff}
+  .total .line{display:flex;justify-content:space-between;font-size:13px;margin:4px 0;opacity:.95}
+  .total .grand{display:flex;justify-content:space-between;align-items:baseline;
+    margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.3)}
+  .total .grand b{font-size:22px;font-weight:800}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+    background:#1c2430;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;
+    font-weight:600;z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1}
+  .loader{text-align:center;padding:20px;color:var(--muted);font-size:14px}
+  .rekod-item{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;margin-bottom:10px;}
+  .rekod-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .rekod-tarikh{font-size:13px;font-weight:700;color:var(--maroon)}
+  .rekod-rm{font-size:15px;font-weight:800;color:var(--green)}
+  .rekod-detail{font-size:12px;color:var(--muted);line-height:1.6}
+  .bulan-header{font-size:12px;font-weight:700;color:var(--maroon);text-transform:uppercase;
+    letter-spacing:.5px;margin:14px 0 8px;padding:6px 10px;background:#fdf0f1;border-radius:8px;}
+  .filter-bar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+  .filter-bar select{width:auto;flex:1;min-width:120px;}
+  .badge{display:inline-block;background:#fdf0f1;color:var(--maroon);font-size:11px;
+    font-weight:700;padding:3px 8px;border-radius:6px;margin-left:6px;}
+  .mealchk{display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0;cursor:pointer;font-weight:600}
+  .mealchk input{width:auto;flex:none}
+  .mealchk .pct{color:var(--muted);font-size:11px;font-weight:700;margin-left:auto}
+  .print-area{display:none;}
+  @media print{
+    body>*{display:none!important}
+    .print-area{display:block!important;font-size:12px;}
+    .print-area table{width:100%;border-collapse:collapse;}
+    .print-area td,.print-area th{border:1px solid #999;padding:5px 7px;}
+    .print-area th{background:#eee;font-weight:700;}
+  }
+  .page{display:none}
+  .page.active{display:block}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kenyataan Tuntutan — WP1.4</h1>
+  <p>Bertugas Rasmi Dalam Negeri · berkuat kuasa 1 Jan 2026</p>
+</header>
+<div class="tabs">
+  <div class="tab active" onclick="tukarTab('tambah',this)">＋ Tambah</div>
+  <div class="tab" onclick="tukarTab('rekod',this)">📋 Rekod</div>
+  <div class="tab" onclick="tukarTab('cetak',this)">🖨️ Cetak</div>
+</div>
+
+<!-- ══════════════ TAB: TAMBAH ══════════════ -->
+<div class="page active" id="pg-tambah">
+<div class="wrap">
+
+  <div class="panel">
+    <h2>Profil Pegawai</h2>
+    <div class="field">
+      <label>Nama Pegawai</label>
+      <input type="text" id="namaPegawai" placeholder="Nama penuh pegawai">
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>Gred (penentu kadar Elaun Makan)</label>
+        <select id="gred" onchange="render()">
+          <option value="utama_a">Utama/Khas A dan ke atas</option>
+          <option value="utama_bc">Utama/Khas B dan C</option>
+          <option value="g14_15">Gred 14 dan 15</option>
+          <option value="g11_13">Gred 11 hingga 13</option>
+          <option value="g9_10">Gred 9 dan 10</option>
+          <option value="g1_8" selected>Gred 1 hingga 8</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Jabatan / Pejabat</label>
+        <input type="text" id="jabatan" placeholder="Cth: JPN Melaka">
+      </div>
+    </div>
+    <div class="note" id="kadarInfo"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Tambah Perjalanan</h2>
+
+    <div class="field">
+      <label>Lokasi tugas rasmi</label>
+      <select id="lokasi" onchange="onLokasiChange()">
+        <option value="sem">Semenanjung Malaysia</option>
+        <option value="sswl">Sabah / Sarawak / WP Labuan</option>
+      </select>
+    </div>
+
+    <div class="seg">Titik Yang Telah Direkod</div>
+    <div class="note" style="margin-bottom:10px">Tambah <b>satu titik setiap kali</b> anda bertolak/tiba. Setiap titik disimpan <b>terus dalam peranti ini</b> — anda boleh tutup app dan sambung esok tanpa perlu ingat semula butiran hari sebelumnya. Tandakan kotak <b>"Tiba Semula di Rumah"</b> hanya pada titik <b>terakhir</b> perjalanan untuk mengira elaun.</div>
+
+    <div id="legTimeline"></div>
+
+    <div class="legcard">
+      <div class="legtop"><span class="legno" id="legFormLabel"></span></div>
+      <div class="field"><label>Lokasi</label>
+        <input type="text" id="npNama" placeholder="Cth: Menara Persekutuan Ayer Keroh, Melaka">
+      </div>
+      <div class="grid2">
+        <div class="field"><label id="npTarikhLabel">Tarikh</label><input type="date" id="npTarikh"></div>
+        <div class="field"><label id="npMasaLabel">Masa</label><input type="time" id="npMasa"></div>
+      </div>
+      <div id="npKenderaanBlock">
+        <div class="grid2">
+          <div class="field">
+            <label>Kenderaan (menuju titik ini)</label>
+            <select id="npJenis">
+              <option value="kereta">Kereta Sendiri</option>
+              <option value="motor">Motosikal Sendiri</option>
+              <option value="jabatan">Kereta Jabatan</option>
+            </select>
+          </div>
+          <div class="field"><label>Jarak segmen (km)</label>
+            <input type="number" id="npJarak" inputmode="decimal" placeholder="Cth: 126">
+          </div>
+        </div>
+        <div class="field"><label>Tujuan di destinasi ini</label>
+          <textarea id="npTujuan" placeholder="Cth: Bertugas rasmi menghadiri Mesyuarat Jawatankuasa..."></textarea>
+        </div>
+      </div>
+
+      <div class="seg" style="margin-top:14px">Kemudahan Makan Minum Disediakan Di Sini?</div>
+      <div class="note" style="margin:0 0 6px">Tandakan jika Kerajaan/penganjur menyediakan mana-mana bahagian makan berikut di titik ini. Potongan dikira automatik daripada Elaun Makan/Harian mengikut kadar rasmi WP1.4.</div>
+      <label class="mealchk"><input type="checkbox" id="npMSarapan"><span>Sarapan / Minum Pagi</span><span class="pct">-20%</span></label>
+      <label class="mealchk"><input type="checkbox" id="npMTengahari"><span>Makan Tengah Hari / Minum Petang</span><span class="pct">-40%</span></label>
+      <label class="mealchk"><input type="checkbox" id="npMMalam"><span>Makan Malam / Lewat Malam</span><span class="pct">-40%</span></label>
+      <label class="mealchk" style="border-top:1px dashed var(--line);padding-top:8px">
+        <input type="checkbox" id="npMSemua" onclick="toggleSemuaMakan(this)"><span>Tandakan Kesemuanya</span>
+      </label>
+
+      <label id="npTamatWrap" style="display:flex;align-items:center;gap:8px;margin:10px 0 2px;cursor:pointer">
+        <input type="checkbox" id="npTamat" style="width:auto">
+        <span style="font-weight:700;font-size:13px">Titik ini = TIBA SEMULA DI RUMAH (tamatkan &amp; kira elaun)</span>
+      </label>
+      <button class="btn" type="button" onclick="tambahTitikSeterusnya()" style="margin-top:10px" id="btnTambahTitik">＋ Tambah Titik Ini</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px" id="legActionsRow"></div>
+
+    <div class="seg" style="margin-top:16px">Belanja Pelbagai Keseluruhan</div>
+    <div class="field">
+      <label>Belanja Pelbagai (Tol, Parking, dll) — RM</label>
+      <input type="number" id="belanjaPelbagai" inputmode="decimal" placeholder="Cth: 25.60" step="0.01" oninput="onBelanjaChange()">
+    </div>
+    <div class="note">Elaun Makan/Harian dikira automatik dari <b>masa titik mula</b> hingga <b>masa tiba rumah</b> apabila perjalanan ditamatkan: setiap 24 jam = 1 Elaun Makan; baki lebih 8 jam = 1 Elaun Harian. Jarak setiap segmen dijumlahkan merentas keseluruhan perjalanan untuk kadar berperingkat.</div>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div id="senarai"></div>
+  <div id="ringkasan"></div>
+
+  <div id="btnSimpan" style="display:none">
+    <button class="btn green" onclick="simpanKeSheets()">💾 Simpan ke Google Sheets</button>
+    <div class="note" style="text-align:center">Data akan disimpan dalam Google Sheets mengikut tarikh, bulan dan tahun.</div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════ TAB: REKOD ══════════════ -->
+<div class="page" id="pg-rekod">
+<div class="wrap">
+  <div class="panel">
+    <h2>Rekod Tersimpan (Peranti Ini)</h2>
+    <div class="filter-bar">
+      <select id="fBulan">
+        <option value="">-- Semua Bulan --</option>
+        <option value="1">Januari</option><option value="2">Februari</option>
+        <option value="3">Mac</option><option value="4">April</option>
+        <option value="5">Mei</option><option value="6">Jun</option>
+        <option value="7">Julai</option><option value="8">Ogos</option>
+        <option value="9">September</option><option value="10">Oktober</option>
+        <option value="11">November</option><option value="12">Disember</option>
+      </select>
+      <select id="fTahun">
+        <option value="">-- Semua Tahun --</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+      </select>
+      <button class="btn sm" style="background:var(--maroon)" onclick="muatRekod()">🔍 Tapis</button>
+    </div>
+    <div class="note">Rekod disimpan terus dalam peranti ini (tidak perlu Internet untuk lihat semula). Salinan juga dihantar ke Google Sheets sebagai sandaran.</div>
+  </div>
+  <div id="senaraRekod"><div class="empty">Tiada rekod lagi.</div></div>
+</div>
+</div>
+
+<!-- ══════════════ TAB: CETAK ══════════════ -->
+<div class="page" id="pg-cetak">
+<div class="wrap">
+  <div class="panel">
+    <h2>Jana Borang Tuntutan Bulanan</h2>
+    <div class="grid2">
+      <div class="field">
+        <label>Bulan</label>
+        <select id="cBulan">
+          <option value="1">Januari</option><option value="2">Februari</option>
+          <option value="3">Mac</option><option value="4">April</option>
+          <option value="5">Mei</option><option value="6">Jun</option>
+          <option value="7">Julai</option><option value="8">Ogos</option>
+          <option value="9">September</option><option value="10">Oktober</option>
+          <option value="11">November</option><option value="12">Disember</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tahun</label>
+        <select id="cTahun">
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn blue" onclick="janaCetak()">🖨️ Jana & Cetak Borang</button>
+  </div>
+  <div id="previewCetak"></div>
+</div>
+</div>
+
+<!-- PRINT AREA -->
+<div class="print-area" id="printArea"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGOQE1Zs8b90GjehojXfyYGYoC7stMZvu8xUkWgaRlmObbrg7RHLBMz4B6kJ51HIV3/exec";
+
+  // Google Form (bypass CORS) — data dihantar senyap ke Sheets melalui Form
+  const FORM_ID = "1FAIpQLSfvZkePTt7pQ9xz8-ZWfkw7i6tcnCOG0fVFFDJcoWPffeHHyw";
+  const FORM_ACTION_URL = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
+  const FORM_ENTRIES = {
+    nama:            "entry.1637945416",
+    jabatan:         "entry.1341222179",
+    gred:            "entry.1745572102",
+    tarikh:          "entry.407953020",
+    masaTibaRumah:   "entry.2053441564",
+    dari:            "entry.1887341832",
+    ke:              "entry.1384601216",
+    tujuan:          "entry.1440267373",
+    kenderaan:       "entry.1784793001",
+    jarak:           "entry.1641616928",
+    elaunMakan:      "entry.1812066679",
+    elaunHarian:     "entry.1612303758",
+    rmMakan:         "entry.1333031211",
+    rmHarian:        "entry.1265223571",
+    rmKm:            "entry.117118887",
+    belanjaPelbagai: "entry.2145683155",
+    jumlahRM:        "entry.640440882",
+  };
+
+  // Hantar satu rekod ke Google Form secara senyap (hidden iframe, bypass CORS)
+  function hantarKeGoogleForm(payload){
+    return new Promise((resolve)=>{
+      let iframe = document.getElementById("hiddenFormFrame");
+      if(!iframe){
+        iframe = document.createElement("iframe");
+        iframe.name = "hiddenFormFrame";
+        iframe.id = "hiddenFormFrame";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+      }
+
+      const form = document.createElement("form");
+      form.action = FORM_ACTION_URL;
+      form.method = "POST";
+      form.target = "hiddenFormFrame";
+
+      function addField(name,value){
+        const inp = document.createElement("input");
+        inp.type = "hidden";
+        inp.name = name;
+        inp.value = value;
+        form.appendChild(inp);
+      }
+
+      addField(FORM_ENTRIES.nama, payload.nama);
+      addField(FORM_ENTRIES.jabatan, payload.jabatan);
+      addField(FORM_ENTRIES.gred, payload.gred);
+      addField(FORM_ENTRIES.tarikh, payload.tarikh);
+      // Medan "Masa Bertolak" jenis Time perlukan _hour & _minute
+      addField("entry.1735555444_hour", payload._masaBertolakJam);
+      addField("entry.1735555444_minute", payload._masaBertolakMinit);
+      addField(FORM_ENTRIES.masaTibaRumah, payload.masaTibaRumah);
+      addField(FORM_ENTRIES.dari, payload.dari);
+      addField(FORM_ENTRIES.ke, payload.ke);
+      addField(FORM_ENTRIES.tujuan, payload.tujuan);
+      addField(FORM_ENTRIES.kenderaan, payload.kenderaan);
+      addField(FORM_ENTRIES.jarak, payload.jarak);
+      addField(FORM_ENTRIES.elaunMakan, payload.eLaunMakan);
+      addField(FORM_ENTRIES.elaunHarian, payload.eLaunHarian);
+      addField(FORM_ENTRIES.rmMakan, payload.rmMakan);
+      addField(FORM_ENTRIES.rmHarian, payload.rmHarian);
+      addField(FORM_ENTRIES.rmKm, payload.rmKm);
+      addField(FORM_ENTRIES.belanjaPelbagai, payload.belanjaPelbagai);
+      addField(FORM_ENTRIES.jumlahRM, payload.jumlahRM);
+
+      document.body.appendChild(form);
+      form.submit();
+      setTimeout(()=>{ form.remove(); resolve(true); }, 600);
+    });
+  }
+
+  const KADAR_MAKAN = {
+    utama_a:  {label:"Utama/Khas A dan ke atas", sem:115, sswl:165},
+    utama_bc: {label:"Utama/Khas B dan C",       sem:100, sswl:130},
+    g14_15:   {label:"Gred 14 dan 15",           sem:85,  sswl:115},
+    g11_13:   {label:"Gred 11 hingga 13",        sem:60,  sswl:80},
+    g9_10:    {label:"Gred 9 dan 10",            sem:45,  sswl:65},
+    g1_8:     {label:"Gred 1 hingga 8",          sem:40,  sswl:55},
+  };
+
+  const NAMA_BULAN = ["","Januari","Februari","Mac","April","Mei","Jun",
+    "Julai","Ogos","September","Oktober","November","Disember"];
+
+  const LOKASI = {sem:"Semenanjung Malaysia", sswl:"Sabah/Sarawak/WP Labuan"};
+  const LS_KEY = "wp14_rekod_tersimpan";
+
+  function bacaRekodLocal(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+    catch(e){ return []; }
+  }
+  function simpanRekodLocal(rekodBaru){
+    const semua = bacaRekodLocal();
+    semua.push(...rekodBaru);
+    localStorage.setItem(LS_KEY, JSON.stringify(semua));
+  }
+  function padamRekodLocal(index){
+    const semua = bacaRekodLocal();
+    semua.splice(index,1);
+    localStorage.setItem(LS_KEY, JSON.stringify(semua));
+    muatRekod();
+  }
+  const entries = [];
+  const rmFmt = n => "RM " + Number(n).toLocaleString("ms-MY",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // ── State perjalanan AKTIF (persisted) ──
+  // Setiap titik: {nama, tarikh, masa, jenis, jarak, tujuan}
+  // Titik pertama = titik mula (jenis/jarak/tujuan diabaikan). Titik ke-2+ = perjalanan MENUJU titik itu.
+  // Disimpan dalam localStorage supaya boleh tutup app & sambung esok tanpa hilang data.
+  const AKTIF_KEY = "wp14_perjalanan_aktif";
+  let points = [];
+  let lokasiAktif = "sem";
+  let belanjaAktif = 0;
+
+  function bacaAktif(){
+    try{
+      const raw = JSON.parse(localStorage.getItem(AKTIF_KEY));
+      if(raw && Array.isArray(raw.points)){
+        points = raw.points;
+        lokasiAktif = raw.lokasi || "sem";
+        belanjaAktif = raw.belanjaPelbagai || 0;
+      }
+    }catch(e){ points=[]; }
+  }
+  function simpanAktif(){
+    localStorage.setItem(AKTIF_KEY, JSON.stringify({points, lokasi:lokasiAktif, belanjaPelbagai:belanjaAktif}));
+  }
+  function padamAktif(){
+    localStorage.removeItem(AKTIF_KEY);
+  }
+
+  function onLokasiChange(){
+    lokasiAktif = document.getElementById("lokasi").value;
+    simpanAktif();
+  }
+  function onBelanjaChange(){
+    belanjaAktif = parseFloat(document.getElementById("belanjaPelbagai").value)||0;
+    simpanAktif();
+  }
+
+  function labelKenderaan(j){
+    return j==="kereta"?"Kereta Sendiri":j==="motor"?"Motosikal Sendiri":j==="jabatan"?"Kereta Jabatan":"—";
+  }
+  function fmtTarikhMasaRingkas(tarikh,masa){
+    const dt=parseDT(tarikh,masa);
+    if(!dt) return "—";
+    return `${fmtTarikh(dt)} · ${fmtMasa(dt)}`;
+  }
+
+  function kosongkanFormTitik(){
+    document.getElementById("npNama").value="";
+    document.getElementById("npTarikh").value="";
+    document.getElementById("npMasa").value="";
+    document.getElementById("npJenis").value="kereta";
+    document.getElementById("npJarak").value="";
+    document.getElementById("npTujuan").value="";
+    document.getElementById("npTamat").checked=false;
+    document.getElementById("npMSarapan").checked=false;
+    document.getElementById("npMTengahari").checked=false;
+    document.getElementById("npMMalam").checked=false;
+    document.getElementById("npMSemua").checked=false;
+  }
+
+  function toggleSemuaMakan(el){
+    const v=el.checked;
+    document.getElementById("npMSarapan").checked=v;
+    document.getElementById("npMTengahari").checked=v;
+    document.getElementById("npMMalam").checked=v;
+  }
+
+  function labelMakan(makan){
+    if(!makan) return [];
+    const bits=[];
+    if(makan.sarapan) bits.push("Sarapan/Minum Pagi");
+    if(makan.tengahari) bits.push("Makan T.Hari/Minum Petang");
+    if(makan.malam) bits.push("Makan Malam/Lewat Malam");
+    return bits;
+  }
+
+  // ── Papar senarai titik yang sudah direkod + borang titik seterusnya ──
+  function renderTimeline(){
+    const box=document.getElementById("legTimeline");
+    if(points.length===0){
+      box.innerHTML=`<div class="note">Belum ada titik direkod lagi. Isi <b>Titik Mula (bertolak dari rumah)</b> di bawah untuk mula perjalanan baharu.</div>`;
+    }else{
+      box.innerHTML=points.map((p,i)=>{
+        const isFirst=i===0;
+        const label = isFirst ? "📍 Titik Mula — Bertolak dari rumah" : `📍 Titik ${i+1}`;
+        const detailSegmen = !isFirst ? `
+          <div class="row"><span class="k">Kenderaan</span><span class="v">${labelKenderaan(p.jenis)} · ${p.jarak||0} km</span></div>
+          ${p.tujuan?`<div class="row"><span class="k">Tujuan</span><span class="v">${p.tujuan}</span></div>`:""}`:"";
+        const mealBits=labelMakan(p.makan);
+        const mealRow=mealBits.length?`<div class="row"><span class="k">🍽️ Makan</span><span class="v">${mealBits.join(", ")}</span></div>`:"";
+        return `
+        <div class="legcard" style="opacity:.85">
+          <div class="legtop"><span class="legno">${label}</span></div>
+          <div class="row"><span class="k">Lokasi</span><span class="v">${p.nama}</span></div>
+          <div class="row"><span class="k">Tarikh/Masa</span><span class="v">${fmtTarikhMasaRingkas(p.tarikh,p.masa)}</span></div>
+          ${detailSegmen}
+          ${mealRow}
+        </div>`;
+      }).join("");
+    }
+
+    const isFirst=points.length===0;
+    document.getElementById("legFormLabel").textContent = isFirst
+      ? "📍 Titik Mula (Bertolak dari rumah)"
+      : `📍 Titik ${points.length+1} — Perhentian / Tiba`;
+    document.getElementById("npTarikhLabel").textContent = isFirst ? "Tarikh bertolak" : "Tarikh tiba";
+    document.getElementById("npMasaLabel").textContent = isFirst ? "Masa bertolak" : "Masa tiba";
+    document.getElementById("npKenderaanBlock").style.display = isFirst ? "none" : "block";
+    document.getElementById("npTamatWrap").style.display = isFirst ? "none" : "flex";
+    document.getElementById("btnTambahTitik").textContent = isFirst ? "＋ Mula Perjalanan (Titik 1)" : "＋ Tambah Titik Ini";
+
+    const actions=document.getElementById("legActionsRow");
+    if(points.length>0){
+      actions.innerHTML=`
+        <button class="btn ghost sm" style="flex:1" type="button" onclick="padamTitikTerakhir()">↩ Padam Titik Terakhir</button>
+        <button class="btn ghost sm" style="flex:1;border-color:var(--red);color:var(--red)" type="button" onclick="batalPerjalanan()">✕ Batal Perjalanan</button>`;
+    }else{
+      actions.innerHTML="";
+    }
+  }
+
+  // ── Tambah SATU titik (bertolak/tiba) — disimpan terus, tak perlu ingat titik lain ──
+  function tambahTitikSeterusnya(){
+    const isFirst=points.length===0;
+    const nama=document.getElementById("npNama").value.trim();
+    const tarikh=document.getElementById("npTarikh").value;
+    const masa=document.getElementById("npMasa").value;
+    const jenis=document.getElementById("npJenis").value;
+    const jarak=document.getElementById("npJarak").value;
+    const tujuan=document.getElementById("npTujuan").value.trim();
+    const tamat=document.getElementById("npTamat").checked;
+    const makan={
+      sarapan: document.getElementById("npMSarapan").checked,
+      tengahari: document.getElementById("npMTengahari").checked,
+      malam: document.getElementById("npMMalam").checked
+    };
+
+    if(!nama){alert("Sila isi Lokasi.");return;}
+    if(!tarikh||!masa){alert("Sila isi Tarikh & Masa.");return;}
+    const dtBaru=parseDT(tarikh,masa);
+    if(!dtBaru){alert("Tarikh/Masa tidak sah.");return;}
+
+    if(!isFirst){
+      const pSebelum=points[points.length-1];
+      const dtSebelum=parseDT(pSebelum.tarikh,pSebelum.masa);
+      if(dtSebelum && dtBaru<=dtSebelum){
+        alert("Masa titik ini mesti selepas titik sebelumnya. Sila semak semula.");return;
+      }
+    }
+
+    points.push({
+      nama, tarikh, masa,
+      jenis: isFirst?"kereta":jenis,
+      jarak: isFirst?"":jarak,
+      tujuan: isFirst?"":tujuan,
+      makan
+    });
+    simpanAktif();
+    kosongkanFormTitik();
+
+    if(tamat && !isFirst){
+      selesaikanPerjalanan();
+    }else{
+      renderTimeline();
+      showToast(isFirst
+        ? "✅ Titik mula direkod. Sambung bila anda tiba di destinasi seterusnya."
+        : "✅ Titik direkod & disimpan. Boleh sambung esok bila perlu.");
+    }
+  }
+
+  function padamTitikTerakhir(){
+    if(points.length===0) return;
+    if(!confirm("Padam titik terakhir yang direkod?")) return;
+    points.pop();
+    simpanAktif();
+    renderTimeline();
+  }
+
+  function batalPerjalanan(){
+    if(!confirm("Batalkan keseluruhan perjalanan ini? Semua titik yang telah direkod untuk perjalanan ini akan hilang.")) return;
+    points=[];
+    belanjaAktif=0;
+    padamAktif();
+    document.getElementById("belanjaPelbagai").value="";
+    kosongkanFormTitik();
+    renderTimeline();
+  }
+
+  // ── Util ──
+  function parseDT(d,t){ if(!d||!t) return null; const dt=new Date(d+"T"+t); return isNaN(dt)?null:dt; }
+  function fmtTarikh(dt){ if(!dt) return "—"; const p=n=>String(n).padStart(2,"0");
+    return `${p(dt.getDate())}.${p(dt.getMonth()+1)}.${dt.getFullYear()}`; }
+  function fmtMasa(dt){ if(!dt) return "—"; let h=dt.getHours(),m=dt.getMinutes();
+    const ap=h>=12?"PTG":"PG"; h=h%12; if(h===0)h=12; return `${h}.${String(m).padStart(2,"0")} ${ap}`; }
+  function showToast(msg,dur=3000){
+    const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),dur);
+  }
+  function tukarTab(id,el){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.getElementById("pg-"+id).classList.add("active");
+    el.classList.add("active");
+  }
+
+  // ── Kira Kelayakan ──
+  function kiraLayak(bertolak,tibaRumah){
+    if(!bertolak||!tibaRumah) return {teks:"Lengkapkan tarikh & masa",kelas:"warn",jam:null,makan:0,harian:0};
+    const ms=tibaRumah-bertolak;
+    if(ms<=0) return {teks:"Masa tiba rumah mesti selepas bertolak",kelas:"no",jam:null,makan:0,harian:0};
+    const jam=ms/36e5, blok=Math.floor(jam/24), baki=jam-blok*24;
+    const makan=blok, harian=baki>8?1:0;
+    let teks,kelas;
+    if(makan>0&&harian>0){teks=`${makan} Elaun Makan + ${harian} Elaun Harian`;kelas="ok";}
+    else if(makan>0){teks=`${makan} Elaun Makan`;kelas="ok";}
+    else if(harian>0){teks=`${harian} Elaun Harian`;kelas="ok";}
+    else{teks="Tidak layak (tempoh 8 jam atau kurang)";kelas="no";}
+    return {teks,kelas,jam,makan,harian};
+  }
+
+  // Kira RM untuk satu segmen, ambil kira km terkumpul sebelum ini (untuk kadar berperingkat 500km)
+  function kiraKmSegmen(jenis,jarak,kmSebelum){
+    const km=parseFloat(jarak)||0;
+    if(jenis==="jabatan") return {layak:false,rm:0,label:"Kereta Jabatan",km};
+    let kadar1,kadar2;
+    if(jenis==="kereta"){kadar1=1.00;kadar2=0.90;}
+    else if(jenis==="motor"){kadar1=0.65;kadar2=0.55;}
+    else return {layak:false,rm:0,label:"",km};
+    // Bahagikan km ini kepada bahagian dalam 500km pertama dan selebihnya, berdasarkan km terkumpul
+    const bakiDalam500=Math.max(0,500-kmSebelum);
+    const kmTier1=Math.min(km,bakiDalam500);
+    const kmTier2=km-kmTier1;
+    const rm=kmTier1*kadar1+kmTier2*kadar2;
+    const label=jenis==="kereta"?"Kereta Sendiri":"Motosikal Sendiri";
+    return {layak:true,rm,label,km};
+  }
+
+  function kiraKm(jenis,jarak){
+    return kiraKmSegmen(jenis,jarak,0);
+  }
+
+  // ── Kira Elaun Makan/Harian dengan potongan makan disediakan ──
+  // Setiap 24 jam berterusan dari titik pertama (bertolak) = 1 blok Elaun Makan.
+  // Baki >8 jam selepas blok terakhir = 1 Elaun Harian.
+  // Sebarang titik yang menandakan makan disediakan akan menolak 20%/40%/40%
+  // (Sarapan/Minum Pagi, Makan T.Hari/Minum Petang, Makan Malam/Lewat Malam) daripada
+  // blok/harian yang bersamaan (mengikut masa sebenar titik itu), sehingga maksimum 100%.
+  function kiraElaunDenganPotongan(titik,kadarMakan){
+    if(!titik||titik.length<2) return null;
+    const bertolak=titik[0].dt, tibaRumah=titik[titik.length-1].dt;
+    const ms=tibaRumah-bertolak;
+    if(ms<=0) return null;
+    const jamTotal=ms/36e5;
+    const blokMakan=Math.floor(jamTotal/24);
+    const bakiJam=jamTotal-blokMakan*24;
+    const adaHarian=bakiJam>8;
+    const kadarHarian=kadarMakan/2;
+
+    const jumlahSlot=blokMakan+(adaHarian?1:0);
+    const potongan=new Array(jumlahSlot).fill(0);
+    const meals=Array.from({length:jumlahSlot},()=>[]);
+
+    if(jumlahSlot>0){
+      titik.forEach(t=>{
+        const bits=labelMakan(t.makan);
+        if(!bits.length) return;
+        let idx=Math.floor((t.dt-bertolak)/36e5/24);
+        if(idx<0) idx=0;
+        if(idx>=jumlahSlot) idx=jumlahSlot-1;
+        if(t.makan.sarapan) potongan[idx]+=20;
+        if(t.makan.tengahari) potongan[idx]+=40;
+        if(t.makan.malam) potongan[idx]+=40;
+        meals[idx].push(...bits.map(b=>`${b} (${t.nama})`));
+      });
+    }
+
+    let rmMakan=0;
+    const perincian=[];
+    for(let i=0;i<blokMakan;i++){
+      const pct=Math.min(100,potongan[i]||0);
+      const rm=kadarMakan*(1-pct/100);
+      rmMakan+=rm;
+      if(pct>0) perincian.push({label:`Elaun Makan — Hari ke-${i+1}`,pct,rm,asal:kadarMakan,meals:meals[i]});
+    }
+    let rmHarian=0;
+    if(adaHarian){
+      const idxH=blokMakan;
+      const pct=Math.min(100,potongan[idxH]||0);
+      rmHarian=kadarHarian*(1-pct/100);
+      if(pct>0) perincian.push({label:"Elaun Harian",pct,rm:rmHarian,asal:kadarHarian,meals:meals[idxH]});
+    }
+    return {blokMakan,adaHarian,rmMakan,rmHarian,perincian};
+  }
+
+  // ── Selesaikan Perjalanan (titik terakhir = tiba semula di rumah) ──
+  // Dipanggil automatik oleh tambahTitikSeterusnya() apabila kotak "Tiba Semula di Rumah" ditanda.
+  // Mengira Elaun Makan/Harian dari titik PERTAMA hingga titik TERAKHIR yang telah disimpan,
+  // walaupun titik-titik tersebut dimasukkan pada hari/sesi yang berlainan.
+  function selesaikanPerjalanan(){
+    const lokasi=document.getElementById("lokasi").value;
+    const belanjaPelbagai=parseFloat(document.getElementById("belanjaPelbagai").value)||0;
+
+    const titik=points.map(p=>({
+      nama:p.nama.trim(),
+      dt:parseDT(p.tarikh,p.masa),
+      jenis:p.jenis,
+      jarak:p.jarak,
+      tujuan:(p.tujuan||"").trim(),
+      makan:p.makan||{sarapan:false,tengahari:false,malam:false}
+    }));
+
+    if(titik.length<2){alert("Perlu sekurang-kurangnya 2 titik (mula dan tiba rumah) sebelum boleh ditamatkan.");return;}
+    for(let i=0;i<titik.length;i++){
+      if(!titik[i].dt||!titik[i].nama){alert(`Data Titik ${i+1} tidak lengkap. Sila padam & masuk semula.`);return;}
+    }
+    for(let i=1;i<titik.length;i++){
+      if(titik[i].dt<=titik[i-1].dt){
+        alert(`Masa Titik ${i+1} mesti selepas Titik ${i}. Semak semula turutan masa.`);return;
+      }
+    }
+
+    const bertolak=titik[0].dt;
+    const tibaRumah=titik[titik.length-1].dt;
+
+    const segmen=[];
+    for(let i=1;i<titik.length;i++){
+      segmen.push({
+        dari:titik[i-1].nama,
+        ke:titik[i].nama,
+        jenis:titik[i].jenis,
+        jarak:titik[i].jarak,
+        tujuan:titik[i].tujuan,
+        tibaDT:titik[i].dt,
+        tolakDT:titik[i-1].dt
+      });
+    }
+
+    const tujuanGabungan=segmen.filter(s=>s.tujuan).map(s=>`${s.ke} (${fmtMasa(s.tibaDT)}): ${s.tujuan}`).join(" | ");
+
+    entries.push({
+      bertolak, tibaRumah, tujuan:tujuanGabungan, lokasi, belanjaPelbagai,
+      segmen,
+      titik: titik.map(t=>({nama:t.nama, dt:t.dt, makan:t.makan}))
+    });
+    render();
+
+    // Perjalanan tamat — kosongkan state aktif & localStorage-nya
+    points=[];
+    lokasiAktif="sem";
+    belanjaAktif=0;
+    padamAktif();
+    document.getElementById("belanjaPelbagai").value="";
+    document.getElementById("lokasi").value="sem";
+    renderTimeline();
+    showToast("🎉 Perjalanan ditamatkan! Elaun dikira & ditambah ke Kenyataan Tuntutan di bawah.");
+    window.scrollTo({top:document.getElementById("senarai").offsetTop-70,behavior:"smooth"});
+  }
+
+  function buang(i){entries.splice(i,1);render();}
+
+  // ── Render Tab Tambah ──
+  function render(){
+    const gred=document.getElementById("gred").value;
+    const k=KADAR_MAKAN[gred];
+    document.getElementById("kadarInfo").innerHTML=
+      `Kadar Elaun Makan: <b>Semenanjung ${rmFmt(k.sem)}</b> · <b>Sabah/Sarawak/Labuan ${rmFmt(k.sswl)}</b>. Elaun Harian = separuh kadar.`;
+
+    const box=document.getElementById("senarai");
+    const cnt=document.getElementById("count");
+    const ring=document.getElementById("ringkasan");
+    const btnSimpan=document.getElementById("btnSimpan");
+
+    if(entries.length===0){
+      cnt.textContent=""; btnSimpan.style.display="none";
+      box.innerHTML=`<div class="empty">Belum ada perjalanan. Isi borang di atas dan tekan <b>Tambah</b>.</div>`;
+      ring.innerHTML=""; return;
+    }
+
+    btnSimpan.style.display="block";
+    cnt.textContent=`${entries.length} perjalanan direkod`;
+
+    let totMakan=0,totHarian=0,totMakanRM=0,totHarianRM=0,totKmRM=0,totPelbagai=0;
+
+    box.innerHTML=entries.map((e,i)=>{
+      const layak=kiraLayak(e.bertolak,e.tibaRumah);
+      const tempoh=layak.jam?` (${layak.jam.toFixed(1)} jam)`:"";
+      const kadarMakan=e.lokasi==="sem"?k.sem:k.sswl;
+      const potongan=kiraElaunDenganPotongan(e.titik,kadarMakan);
+      const rmMakan=potongan?potongan.rmMakan:0;
+      const rmHarian=potongan?potongan.rmHarian:0;
+
+      // Kira KM setiap segmen dengan kadar berperingkat (km terkumpul merentas segmen)
+      let kmTerkumpul=0, rmKmEntry=0, jumlahKmEntry=0;
+      const segRows=e.segmen.map(s=>{
+        const kmVal=parseFloat(s.jarak)||0;
+        const res=kiraKmSegmen(s.jenis,s.jarak,kmTerkumpul);
+        if(res.layak) kmTerkumpul+=kmVal;
+        rmKmEntry+=res.rm; jumlahKmEntry+=kmVal;
+        const kmTeks = kmVal>0
+          ? `${s.dari} → ${s.ke}: ${res.label} · ${kmVal} km → ${rmFmt(res.rm)}`
+          : `${s.dari} → ${s.ke}: ${res.label}`;
+        return `
+          <div class="row"><span class="k">${fmtMasa(s.tibaDT)}</span><span class="v">${kmTeks}</span></div>
+          ${s.tujuan?`<div class="row"><span class="k">↳ Tujuan</span><span class="v">${s.tujuan}</span></div>`:""}`;
+      }).join("");
+
+      const potonganRows=(potongan?.perincian||[]).map(p=>
+        `<div class="row"><span class="k">🍽️ ${p.label}</span><span class="v">-${p.pct}% (${p.meals.join(", ")}) → ${rmFmt(p.rm)}</span></div>`
+      ).join("");
+
+      const rmEntry=rmMakan+rmHarian+rmKmEntry+e.belanjaPelbagai;
+
+      totMakan+=layak.makan; totHarian+=layak.harian;
+      totMakanRM+=rmMakan; totHarianRM+=rmHarian;
+      totKmRM+=rmKmEntry; totPelbagai+=e.belanjaPelbagai;
+
+      return `
+      <div class="entry">
+        <div class="top">
+          <div class="dt">
+            <div>Mula: <b>${fmtTarikh(e.bertolak)}</b> ${fmtMasa(e.bertolak)}</div>
+            <div>Tamat: <b>${fmtTarikh(e.tibaRumah)}</b> ${fmtMasa(e.tibaRumah)}</div>
+            <div>Lokasi: <b>${LOKASI[e.lokasi]}</b> · ${e.segmen.length} segmen</div>
+          </div>
+          <button class="del" onclick="buang(${i})">Padam</button>
+        </div>
+        <div style="margin-top:8px">
+          ${segRows}
+          ${jumlahKmEntry>0?`<div class="row"><span class="k">Jumlah KM</span><span class="v">${jumlahKmEntry} km → ${rmFmt(rmKmEntry)}</span></div>`:""}
+          ${e.belanjaPelbagai?`<div class="row"><span class="k">Blj. Pelbagai</span><span class="v">${rmFmt(e.belanjaPelbagai)}</span></div>`:""}
+          ${potonganRows}
+        </div>
+        <span class="tag ${layak.kelas}">Layak: ${layak.teks}${tempoh}</span>
+        <div class="rm"><span class="big">${rmFmt(rmEntry)}</span>
+          <div class="sub">Makan ${rmFmt(rmMakan)} + Harian ${rmFmt(rmHarian)} + Km ${rmFmt(rmKmEntry)} + Pelbagai ${rmFmt(e.belanjaPelbagai)}</div>
+        </div>
+      </div>`;
+    }).join("");
+
+    const totRM=totMakanRM+totHarianRM+totKmRM+totPelbagai;
+    ring.innerHTML=`
+      <div class="panel total">
+        <h2>Ringkasan Tuntutan</h2>
+        <div class="line"><span>A — Elaun Makan (${totMakan} kali)</span><span>${rmFmt(totMakanRM)}</span></div>
+        <div class="line"><span>A — Elaun Harian (${totHarian} kali)</span><span>${rmFmt(totHarianRM)}</span></div>
+        <div class="line"><span>C — Elaun Perjalanan Kenderaan</span><span>${rmFmt(totKmRM)}</span></div>
+        <div class="line"><span>D — Belanja Pelbagai</span><span>${rmFmt(totPelbagai)}</span></div>
+        <div class="grand"><span>JUMLAH KESELURUHAN</span><b>${rmFmt(totRM)}</b></div>
+      </div>`;
+  }
+
+  // ── Simpan ke Google Sheets ──
+  async function simpanKeSheets(){
+    const gred=document.getElementById("gred").value;
+    const nama=document.getElementById("namaPegawai").value.trim();
+    const jabatan=document.getElementById("jabatan").value.trim();
+    const k=KADAR_MAKAN[gred];
+
+    if(!nama){alert("Sila isi Nama Pegawai terlebih dahulu.");return;}
+    if(entries.length===0){alert("Tiada rekod untuk disimpan.");return;}
+
+    showToast("⏳ Menyimpan data...",10000);
+    let jayaBilangan=0;
+    const rekodUntukLocal=[];
+
+    for(const e of entries){
+      const layak=kiraLayak(e.bertolak,e.tibaRumah);
+      const kadarMakan=e.lokasi==="sem"?k.sem:k.sswl;
+      const potongan=kiraElaunDenganPotongan(e.titik,kadarMakan);
+      const rmMakan=potongan?potongan.rmMakan:0;
+      const rmHarian=potongan?potongan.rmHarian:0;
+      const makanDisediakan=(e.titik||[])
+        .map(t=>{const bits=labelMakan(t.makan); return bits.length?`${t.nama} (${fmtMasa(t.dt)}): ${bits.join(", ")}`:"";})
+        .filter(Boolean).join(" | ");
+
+      // Kira KM berperingkat merentas segmen
+      let kmTerkumpul=0, rmKm=0, jumlahKm=0;
+      const segRingkas=[];
+      for(const s of e.segmen){
+        const kmVal=parseFloat(s.jarak)||0;
+        const res=kiraKmSegmen(s.jenis,s.jarak,kmTerkumpul);
+        if(res.layak) kmTerkumpul+=kmVal;
+        rmKm+=res.rm; jumlahKm+=kmVal;
+        segRingkas.push({
+          dari:s.dari, ke:s.ke, kenderaan:res.label,
+          jarak:kmVal, rmKm:res.rm, tujuan:s.tujuan||"",
+          masaTiba:fmtMasa(s.tibaDT), masaTolak:fmtMasa(s.tolakDT)
+        });
+      }
+
+      const jumlahRM=rmMakan+rmHarian+rmKm+e.belanjaPelbagai;
+      const tarikhStr=e.bertolak.toISOString().split("T")[0];
+      const dariAwal=e.segmen[0]?.dari||"";
+      const laluanPenuh=e.segmen.map(s=>`${s.ke} (${fmtMasa(s.tibaDT)})`).join(" → ");
+      const senaraiKenderaan=[...new Set(segRingkas.map(s=>s.kenderaan).filter(Boolean))].join(", ");
+
+      const payload={
+        nama, jabatan, gred,
+        tarikh: tarikhStr,
+        _masaBertolakJam: e.bertolak.getHours(),
+        _masaBertolakMinit: e.bertolak.getMinutes(),
+        masaTibaRumah: fmtMasa(e.tibaRumah),
+        dari: dariAwal,
+        ke: laluanPenuh,
+        tujuan: e.tujuan,
+        kenderaan: senaraiKenderaan,
+        jarak: jumlahKm||0,
+        eLaunMakan: layak.makan,
+        eLaunHarian: layak.harian,
+        rmMakan, rmHarian,
+        rmKm,
+        belanjaPelbagai: e.belanjaPelbagai,
+        jumlahRM,
+      };
+
+      // Simpan terus ke localStorage (peranti ini) — tidak bergantung pada Internet
+      // Nota: "makanDisediakan" disimpan tempatan sahaja (belum dihantar ke Google Sheets
+      // kerana perlu medan/entry ID baharu pada Google Form anda).
+      rekodUntukLocal.push({
+        nama, jabatan, gred,
+        tarikh: tarikhStr,
+        bulan: e.bertolak.getMonth()+1,
+        tahun: e.bertolak.getFullYear(),
+        masaBertolak: fmtMasa(e.bertolak),
+        masaTibaRumah: fmtMasa(e.tibaRumah),
+        dari: dariAwal, ke: laluanPenuh, tujuan: e.tujuan,
+        kenderaan: senaraiKenderaan, jarak: jumlahKm||0,
+        eLaunMakan: layak.makan, eLaunHarian: layak.harian,
+        rmMakan, rmHarian, rmKm,
+        belanjaPelbagai: e.belanjaPelbagai, jumlahRM,
+        lokasi: e.lokasi,
+        segmen: segRingkas,
+        makanDisediakan,
+      });
+
+      // Hantar ke Google Sheets sebagai sandaran (cloud)
+      try{
+        await hantarKeGoogleForm(payload);
+        jayaBilangan++;
+      }catch(err){
+        console.error(err);
+      }
+    }
+
+    // Simpan semua rekod ke localStorage tanpa mengira jaya/gagal hantar ke cloud
+    simpanRekodLocal(rekodUntukLocal);
+
+    showToast(`✅ ${entries.length} rekod disimpan dalam peranti ini (${jayaBilangan} juga dihantar ke Sheets)`);
+    entries.length=0;
+    render();
+  }
+
+  // ── Muat Rekod dari localStorage (peranti ini) ──
+  function muatRekod(){
+    const bulan=document.getElementById("fBulan").value;
+    const tahun=document.getElementById("fTahun").value;
+    const box=document.getElementById("senaraRekod");
+
+    let data=bacaRekodLocal();
+
+    if(bulan) data=data.filter(r=>String(r.bulan)===String(bulan));
+    if(tahun) data=data.filter(r=>String(r.tahun)===String(tahun));
+
+    // Susun ikut tarikh terbaru dahulu
+    data=data.map((r,idx)=>({...r,_origIdx:idx})).sort((a,b)=>new Date(b.tarikh)-new Date(a.tarikh));
+
+    if(data.length===0){
+      box.innerHTML=`<div class="empty">Tiada rekod ditemui untuk tempoh yang dipilih.</div>`;
+      return;
+    }
+
+    let totalRM=0;
+    let html="";
+    let bulanSemasa="";
+
+    data.forEach(r=>{
+      const bLabel=NAMA_BULAN[r.bulan]+" "+r.tahun;
+      if(bLabel!==bulanSemasa){
+        bulanSemasa=bLabel;
+        html+=`<div class="bulan-header">📅 ${bLabel}</div>`;
+      }
+      const rm=parseFloat(r.jumlahRM)||0;
+      totalRM+=rm;
+      html+=`
+        <div class="rekod-item">
+          <div class="rekod-top">
+            <span class="rekod-tarikh">📌 ${r.tarikh||"—"}</span>
+            <span class="rekod-rm">${rmFmt(rm)}</span>
+          </div>
+          <div class="rekod-detail">
+            <b>${r.nama||""}</b> · ${r.gred||""} · ${r.jabatan||""}<br>
+            Dari: ${r.dari||"—"} → Ke: ${r.ke||"—"}<br>
+            Tujuan: ${r.tujuan||"—"}<br>
+            Kenderaan: ${r.kenderaan||"—"} · ${r.jarak||0} km<br>
+            Elaun Makan: ${r.eLaunMakan||0} kali · Elaun Harian: ${r.eLaunHarian||0} kali
+            ${r.makanDisediakan?`<br>🍽️ Makan disediakan: ${r.makanDisediakan}`:""}
+          </div>
+          <button class="del" onclick="padamRekodLocal(${r._origIdx})">Padam</button>
+        </div>`;
+    });
+
+    html+=`
+      <div class="panel total" style="margin-top:12px">
+        <div class="grand"><span>JUMLAH (${data.length} rekod)</span><b>${rmFmt(totalRM)}</b></div>
+      </div>`;
+    box.innerHTML=html;
+  }
+
+  // ── Jana & Cetak (dari localStorage) ──
+  function janaCetak(){
+    const bulan=document.getElementById("cBulan").value;
+    const tahun=document.getElementById("cTahun").value;
+    const preview=document.getElementById("previewCetak");
+
+    let data=bacaRekodLocal().filter(r=>String(r.bulan)===String(bulan)&&String(r.tahun)===String(tahun));
+    data.sort((a,b)=>new Date(a.tarikh)-new Date(b.tarikh));
+
+    if(data.length===0){
+      preview.innerHTML=`<div class="empty">Tiada rekod untuk ${NAMA_BULAN[bulan]} ${tahun}.</div>`;
+      return;
+    }
+
+    let totalMakanRM=0,totalHarianRM=0,totalKmRM=0,totalPelbagaiRM=0,totalRM=0;
+    data.forEach(r=>{
+      totalMakanRM+=parseFloat(r.rmMakan)||0;
+      totalHarianRM+=parseFloat(r.rmHarian)||0;
+      totalKmRM+=parseFloat(r.rmKm)||0;
+      totalPelbagaiRM+=parseFloat(r.belanjaPelbagai)||0;
+      totalRM+=parseFloat(r.jumlahRM)||0;
+    });
+
+    const namaPegawai=data[0].nama||"";
+    const gredPegawai=data[0].gred||"";
+    const jabatanPegawai=data[0].jabatan||"";
+
+    const baris=data.map((r,i)=>`
+      <tr>
+        <td style="text-align:center">${i+1}</td>
+        <td>${r.tarikh||""}</td>
+        <td>${r.masaBertolak||""}</td>
+        <td>${r.masaTibaRumah||""}</td>
+        <td>${r.dari||""}</td>
+        <td>${r.ke||""}</td>
+        <td>${r.tujuan||""}</td>
+        <td>${r.makanDisediakan||"—"}</td>
+        <td style="text-align:center">${r.jarak||0}</td>
+        <td style="text-align:right">${rmFmt(parseFloat(r.rmMakan)||0)}</td>
+        <td style="text-align:right">${rmFmt(parseFloat(r.rmHarian)||0)}</td>
+        <td style="text-align:right">${rmFmt(parseFloat(r.rmKm)||0)}</td>
+        <td style="text-align:right">${rmFmt(parseFloat(r.belanjaPelbagai)||0)}</td>
+        <td style="text-align:right;font-weight:700">${rmFmt(parseFloat(r.jumlahRM)||0)}</td>
+      </tr>`).join("");
+
+    const html=`
+      <div class="panel">
+        <h2>📄 Borang Tuntutan — ${NAMA_BULAN[bulan]} ${tahun}</h2>
+        <div style="font-size:13px;margin-bottom:10px;line-height:1.8">
+          <b>Nama:</b> ${namaPegawai} &nbsp;|&nbsp; <b>Gred:</b> ${gredPegawai} &nbsp;|&nbsp; <b>Jabatan:</b> ${jabatanPegawai}
+        </div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:#7a1f2b;color:#fff">
+              <th style="padding:7px 5px;text-align:center">Bil</th>
+              <th style="padding:7px 5px">Tarikh</th>
+              <th style="padding:7px 5px">Bertolak</th>
+              <th style="padding:7px 5px">Tiba</th>
+              <th style="padding:7px 5px">Dari</th>
+              <th style="padding:7px 5px">Ke</th>
+              <th style="padding:7px 5px">Tujuan</th>
+              <th style="padding:7px 5px">Makan Disediakan</th>
+              <th style="padding:7px 5px;text-align:center">Km</th>
+              <th style="padding:7px 5px;text-align:right">El.Makan</th>
+              <th style="padding:7px 5px;text-align:right">El.Harian</th>
+              <th style="padding:7px 5px;text-align:right">El.Km</th>
+              <th style="padding:7px 5px;text-align:right">Pelbagai</th>
+              <th style="padding:7px 5px;text-align:right">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody>${baris}</tbody>
+          <tfoot>
+            <tr style="background:#f4f5f7;font-weight:700">
+              <td colspan="9" style="padding:7px 5px;text-align:right">JUMLAH</td>
+              <td style="padding:7px 5px;text-align:right">${rmFmt(totalMakanRM)}</td>
+              <td style="padding:7px 5px;text-align:right">${rmFmt(totalHarianRM)}</td>
+              <td style="padding:7px 5px;text-align:right">${rmFmt(totalKmRM)}</td>
+              <td style="padding:7px 5px;text-align:right">${rmFmt(totalPelbagaiRM)}</td>
+              <td style="padding:7px 5px;text-align:right;color:#7a1f2b;font-size:14px">${rmFmt(totalRM)}</td>
+            </tr>
+          </tfoot>
+        </table>
+        </div>
+        <button class="btn" style="margin-top:14px" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+      </div>`;
+
+    preview.innerHTML=html;
+    document.getElementById("printArea").innerHTML=preview.innerHTML;
+  }
+
+  // Set bulan semasa pada dropdown cetak
+  const skrg=new Date();
+  document.getElementById("cBulan").value=skrg.getMonth()+1;
+  document.getElementById("fBulan").value=skrg.getMonth()+1;
+  document.getElementById("fTahun").value=skrg.getFullYear();
+
+  // Muat semula perjalanan aktif (jika ada) yang tersimpan dari sesi/hari sebelumnya
+  bacaAktif();
+  document.getElementById("lokasi").value=lokasiAktif;
+  if(belanjaAktif) document.getElementById("belanjaPelbagai").value=belanjaAktif;
+
+  render();
+  renderTimeline();
+</script>
+</body>
+</html>
