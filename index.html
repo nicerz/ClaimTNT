@@ -369,6 +369,20 @@
     </div>
     <div class="note">Rekod disimpan terus dalam peranti ini (tidak perlu Internet untuk lihat semula). Salinan juga dihantar ke Google Sheets sebagai sandaran.</div>
   </div>
+  <div class="panel">
+    <h2>Simpan ke Google Sheets</h2>
+    <div class="note" style="margin:0 0 12px">Rekod perjalanan, OT dan cuti dihantar automatik ke Google Sheet tersusun dalam Google Drive anda. Tampal URL skrip (Web app) di bawah sekali sahaja.</div>
+    <div class="field">
+      <label for="gsUrl">URL skrip Google (Web app)</label>
+      <input type="url" id="gsUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn sm" type="button" onclick="simpanGsUrl()">Simpan URL</button>
+      <button class="btn ghost sm" type="button" onclick="hantarSemuaGS()">Hantar semua rekod sekarang</button>
+      <button class="btn ghost sm" type="button" onclick="bukaSheet()">Buka Google Sheet</button>
+    </div>
+    <div class="note" id="gsStatus"></div>
+  </div>
   <div id="senaraRekod"><div class="empty">Tiada rekod lagi.</div></div>
 </div>
 </div>
@@ -693,7 +707,9 @@
   }
   function padamRekodLocal(index){
     const semua = bacaRekodLocal();
+    const buangId = semua[index] && semua[index].id;
     semua.splice(index,1);
+    if(buangId) padamGS("perjalanan", buangId);
     localStorage.setItem(LS_KEY, JSON.stringify(semua));
     muatRekod();
   }
@@ -1434,6 +1450,7 @@
       // Nota: "makanDisediakan" disimpan tempatan sahaja (belum dihantar ke Google Sheets
       // kerana perlu medan/entry ID baharu pada Google Form anda).
       rekodUntukLocal.push({
+        id: uid(),
         nama, jabatan, gred,
         tarikh: tarikhStr,
         bulan: e.bertolak.getMonth()+1,
@@ -1458,16 +1475,22 @@
       });
 
       // Hantar ke Google Sheets sebagai sandaran (cloud)
-      try{
-        await hantarKeGoogleForm(payload);
-        jayaBilangan++;
-      }catch(err){
-        console.error(err);
+      if(!gsUrl()){
+        try{
+          await hantarKeGoogleForm(payload);
+          jayaBilangan++;
+        }catch(err){
+          console.error(err);
+        }
       }
     }
 
     // Simpan semua rekod ke localStorage tanpa mengira jaya/gagal hantar ke cloud
     simpanRekodLocal(rekodUntukLocal);
+    if(gsUrl()){
+      const ok = await syncGS("perjalanan", rekodUntukLocal.map(rowPerjalanan));
+      jayaBilangan = ok ? rekodUntukLocal.length : 0;
+    }
 
     showToast(`${entries.length} rekod disimpan dalam peranti ini (${jayaBilangan} juga dihantar ke Sheets)`);
     entries.length=0;
@@ -2151,6 +2174,7 @@
     const jumlahRM=Math.round(k.jumlah*100)/100;
     const semua=bacaOtRekod();
     semua.push({
+      id: uid(),
       tarikh,jenis,mula,tamat,tolakPotongan,
       jamKasar:pecahan.total, jamSiangKasar:pecahan.siang, jamMalamKasar:pecahan.malam,
       jamLayakSiang:layak.siang, jamLayakMalam:layak.malam,
@@ -2158,6 +2182,7 @@
       jumlahRM, catatan
     });
     simpanOtRekod(semua);
+    syncGS("ot", [rowOT(semua[semua.length-1])]);
     document.getElementById("otTarikh").value="";
     document.getElementById("otMasaMula").value="";
     document.getElementById("otMasaTamat").value="";
@@ -2170,7 +2195,9 @@
 
   function padamOT(idxSebenar){
     const semua=bacaOtRekod();
+    const buangId = semua[idxSebenar] && semua[idxSebenar].id;
     semua.splice(idxSebenar,1);
+    if(buangId) padamGS("ot", buangId);
     simpanOtRekod(semua);
     renderOT();
   }
@@ -2293,8 +2320,9 @@
     if(tamat<mula){ alert("Tarikh tamat mesti sama atau selepas tarikh mula."); return; }
     if(!(hari>0)){ alert("Sila isi bilangan hari cuti."); return; }
     const semua=bacaCuti();
-    semua.push({jenis, mula, tamat, hari, separuh:document.getElementById("cutiSeparuh").checked, catatan});
+    semua.push({id:uid(), jenis, mula, tamat, hari, separuh:document.getElementById("cutiSeparuh").checked, catatan});
     simpanCutiSemua(semua);
+    syncGS("cuti", [rowCuti(semua[semua.length-1])]);
     ["cutiMula","cutiTamat","cutiHari","cutiCatatan"].forEach(id=>document.getElementById(id).value="");
     document.getElementById("cutiSeparuh").checked=false;
     document.getElementById("cutiTamat").disabled=false;
@@ -2308,7 +2336,9 @@
   }
   function padamCuti(i){
     if(!confirm("Padam rekod cuti ini?")) return;
-    const semua=bacaCuti(); semua.splice(i,1); simpanCutiSemua(semua); renderCuti();
+    const semua=bacaCuti(); const buangId=semua[i]&&semua[i].id; semua.splice(i,1); simpanCutiSemua(semua);
+    if(buangId) padamGS("cuti", buangId);
+    renderCuti();
   }
   function ringkasCuti(th){
     const t=tetapanTahun(th);
@@ -2378,6 +2408,99 @@
   }
   isiTahunCuti();
   renderCuti();
+
+
+  // ══════════════ GOOGLE SHEETS (Apps Script) ══════════════
+  const GS_URL_KEY = "wp14_gs_url";
+  const GS_LAST_KEY = "wp14_gs_terakhir";
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function gsUrl(){ return (localStorage.getItem(GS_URL_KEY)||"").trim(); }
+
+  // Rekod lama (sebelum kemas kini ini) belum ada ID — beri ID sekali sahaja
+  (function pastikanId(){
+    [[LS_KEY,bacaRekodLocal],[OT_LS_KEY,bacaOtRekod],[CUTI_LS_KEY,bacaCuti]].forEach(([key,baca])=>{
+      const a=baca(); let ubah=false;
+      a.forEach(r=>{ if(!r.id){ r.id=uid(); ubah=true; } });
+      if(ubah) localStorage.setItem(key, JSON.stringify(a));
+    });
+  })();
+
+  function rowPerjalanan(r){
+    const dari = r.dari || (r.segmen&&r.segmen[0]?r.segmen[0].dari:"");
+    return {
+      id:r.id, tarikh:r.tarikh, bertolak:r.masaBertolak||"", tiba:r.masaTibaRumah||"",
+      laluan: dari ? `${dari} → ${r.ke||""}` : (r.ke||""),
+      tujuan:r.tujuan||"", kenderaan:r.kenderaan||"",
+      jarak: jarakLayakRekod(r),
+      bilMakan:r.eLaunMakan||0, bilHarian:r.eLaunHarian||0,
+      rmMakan:+r.rmMakan||0, rmHarian:+r.rmHarian||0, rmPenginapan:+r.penginapanTotal||0,
+      rmKm:+r.rmKm||0, rmPelbagai:+r.belanjaPelbagai||0,
+      butiran:(r.belanjaItems||[]).map(it=>`${it.desc} RM${Number(it.amount).toFixed(2)}`).join(", "),
+      jumlah:+r.jumlahRM||0
+    };
+  }
+  function rowOT(r){
+    return {
+      id:r.id, tarikh:r.tarikh, jenisHari:labelJenisHariOT(r.jenis), mula:r.mula, tamat:r.tamat,
+      jamSiang:+(+r.jamLayakSiang||0).toFixed(2), jamMalam:+(+r.jamLayakMalam||0).toFixed(2),
+      kadar:+r.kadar||0, catatan:(r.tolakPotongan?"[Tolak 1 jam] ":"")+(r.catatan||""), jumlah:+r.jumlahRM||0
+    };
+  }
+  function rowCuti(r){
+    const j=JENIS_CUTI[r.jenis]||{label:r.jenis,tolak:false};
+    return {
+      id:r.id, mula:r.mula, tamat:r.tamat||r.mula, jenis:j.label+(r.separuh?" (separuh hari)":""),
+      hari:+r.hari||0, tolak:j.tolak?"Ya":"Tidak", catatan:r.catatan||""
+    };
+  }
+
+  async function hantarGS(payload){
+    const url=gsUrl();
+    if(!url) return false;
+    try{
+      await fetch(url,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+      localStorage.setItem(GS_LAST_KEY, new Date().toISOString());
+      renderGsStatus();
+      return true;
+    }catch(e){
+      console.error(e);
+      showToast("Tiada Internet — rekod disimpan dalam peranti. Tekan 'Hantar semua' nanti.",4000);
+      return false;
+    }
+  }
+  function syncGS(jenis, records){ if(!records.length) return Promise.resolve(false); return hantarGS({action:"upsert", jenis, records}); }
+  function padamGS(jenis, id){ return hantarGS({action:"delete", jenis, id}); }
+
+  async function hantarSemuaGS(){
+    if(!gsUrl()){ alert("Sila tampal & simpan URL skrip dahulu."); return; }
+    showToast("Menghantar semua rekod…",8000);
+    const a=await syncGS("perjalanan", bacaRekodLocal().map(rowPerjalanan));
+    const b=await syncGS("ot", bacaOtRekod().map(rowOT));
+    const c=await syncGS("cuti", bacaCuti().map(rowCuti));
+    const n=bacaRekodLocal().length+bacaOtRekod().length+bacaCuti().length;
+    if(a!==false||b!==false||c!==false) showToast(`${n} rekod dihantar ke Google Sheets.`);
+  }
+  function simpanGsUrl(){
+    const v=document.getElementById("gsUrl").value.trim();
+    if(v && !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(v)){
+      alert("URL mesti bermula dengan https://script.google.com/macros/s/ dan berakhir dengan /exec"); return;
+    }
+    localStorage.setItem(GS_URL_KEY, v);
+    renderGsStatus();
+    showToast(v ? "URL disimpan. Rekod baharu akan dihantar automatik." : "URL dipadam.");
+  }
+  function bukaSheet(){
+    if(!gsUrl()){ alert("Sila tampal & simpan URL skrip dahulu."); return; }
+    window.open(gsUrl(), "_blank");
+  }
+  function renderGsStatus(){
+    const el=document.getElementById("gsStatus"); if(!el) return;
+    const inp=document.getElementById("gsUrl"); if(inp && document.activeElement!==inp) inp.value=gsUrl();
+    if(!gsUrl()){ el.textContent="Belum disambung. Rekod perjalanan masih dihantar ke Google Form lama."; return; }
+    const t=localStorage.getItem(GS_LAST_KEY);
+    el.textContent = t ? `Disambung. Kali terakhir dihantar: ${new Date(t).toLocaleString("ms-MY")}.` : "Disambung. Belum ada rekod dihantar.";
+  }
+  renderGsStatus();
 
   // Muat tetapan & rekod OT
   (function initOT(){
